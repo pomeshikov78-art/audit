@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Аудит НИОКР — интерактивная модель оценки, v1.0</title>
+<style>
+:root{
+  --navy:#1f3864; --navy2:#2e5395; --accent:#2e74b5; --sky:#9db7e0;
+  --bg:#f4f6fa; --card:#ffffff; --ink:#262626; --gray:#595959; --lgray:#8c8c8c;
+  --red:#c62828; --orange:#ef6c00; --yellow:#fbc02d; --green:#2e7d32; --lgreen:#7cb342; --np:#9e9e9e;
+  --input:#fff2cc; --shadow:0 2px 10px rgba(31,56,100,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 "Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 18px;flex-wrap:wrap}
+.topbar .logo{width:34px;height:34px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.topbar h1{font-size:16px;margin:0;font-weight:600}
+.topbar .ver{background:var(--accent);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700}
+.topbar .spacer{flex:1}
+.btn{border:0;border-radius:8px;padding:8px 14px;font:600 12.5px "Segoe UI",sans-serif;cursor:pointer;background:var(--accent);color:#fff;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;color:#fff;border:1px solid var(--sky)}
+.btn.warn{background:var(--orange)}
+.btn.gray{background:#e8ebf2;color:var(--navy)}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+select,input[type=text],input[type=number],textarea{font:13px "Segoe UI",sans-serif;border:1px solid #c6cede;border-radius:7px;padding:6px 8px;background:#fff;color:var(--ink)}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--sky)}
+.tabs{display:flex;gap:4px;background:#e6ebf4;padding:8px 14px 0;flex-wrap:wrap;position:sticky;top:54px;z-index:30}
+.tabs button{border:0;border-radius:9px 9px 0 0;padding:9px 16px;font:600 13px "Segoe UI",sans-serif;cursor:pointer;background:transparent;color:var(--gray)}
+.tabs button.on{background:var(--bg);color:var(--navy);box-shadow:0 -2px 6px rgba(31,56,100,.08)}
+main{padding:16px 18px 60px;max-width:1420px;margin:0 auto}
+section.tab{display:none}
+section.tab.on{display:block}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px}
+.card h3{margin:0 0 10px;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-size:30px;font-weight:800;color:var(--navy)}
+.kpi .l{font-size:11.5px;color:var(--gray)}
+.pill{display:inline-block;border-radius:10px;padding:2px 10px;font-size:11.5px;font-weight:700;color:#fff}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{background:var(--navy);color:#fff;padding:7px 8px;text-align:left;font-size:11.5px}
+td{border:1px solid #e2e7f0;padding:6px 8px;vertical-align:top}
+tr:nth-child(even) td{background:#f6f8fc}
+.qrow{border:1px solid #e2e7f0;border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+.qrow .qh{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#f6f8fc}
+.qrow .num{min-width:26px;height:26px;border-radius:7px;background:var(--navy2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.qrow .qt{flex:1}
+.qrow .qt b{font-size:13px}
+.qrow .qt .est{display:block;color:var(--gray);font-size:11.5px;margin-top:3px}
+.qrow .qb{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:9px 12px}
+.score-chip{min-width:38px;text-align:center;border-radius:8px;padding:5px 8px;font-weight:800;color:#fff;background:var(--np)}
+.blk-h{display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:10px;padding:9px 14px;margin:16px 0 10px;font-weight:700}
+.blk-h .w{margin-left:auto;background:var(--accent);border-radius:9px;padding:2px 10px;font-size:12px}
+.blk-sum{display:flex;gap:18px;flex-wrap:wrap;background:#eef3fa;border-radius:10px;padding:9px 14px;font-size:12.5px;margin-bottom:6px}
+.blk-sum b{color:var(--navy)}
+.heat{display:flex;gap:3px;flex-wrap:wrap}
+.heat div{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:700;cursor:pointer}
+#toasts{position:fixed;top:64px;right:16px;z-index:90;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{border-radius:10px;padding:10px 14px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:12.5px;animation:tin .25s;display:flex;gap:9px;align-items:flex-start}
+.toast .ic{font-size:15px}
+.toast.ok{background:var(--green)}.toast.warn{background:var(--orange)}.toast.err{background:var(--red)}.toast.info{background:var(--navy2)}
+@keyframes tin{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+#moverlay{position:fixed;inset:0;background:rgba(20,30,55,.55);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+#moverlay.on{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 10px;font-size:17px;color:var(--navy)}
+.modal .mbtns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.feed{max-height:230px;overflow:auto}
+.feed .fi{border-left:4px solid var(--accent);background:#f4f7fc;border-radius:0 8px 8px 0;padding:6px 10px;margin-bottom:6px;font-size:12px}
+.feed .fi.warn{border-color:var(--orange)}.feed .fi.err{border-color:var(--red)}.feed .fi.ok{border-color:var(--green)}
+.field{display:grid;grid-template-columns:230px 1fr;gap:8px;align-items:center;margin-bottom:7px}
+.field label{font-size:12.5px;color:var(--gray);font-weight:600}
+.note{background:#fbf6e9;border-left:4px solid var(--yellow);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12.5px;margin:10px 0}
+.formula{background:#10233f;color:#cfe3ff;border-radius:9px;padding:10px 14px;font:12.5px/1.6 Consolas,monospace;overflow:auto}
+.src a{color:var(--accent)}
+.mini{font-size:11px;color:var(--lgray)}
+.bar{height:14px;border-radius:7px;background:#e6ebf4;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:7px}
+@media print{
+  .topbar,.tabs,#toasts,#moverlay,.noprint{display:none!important}
+  main{padding:0}section.tab{display:none!important}section.tab#printarea{display:block!important}
+  body{background:#fff}
+  .card{box-shadow:none;border:1px solid #bbb}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">НК</div>
+  <h1>Аудит НИОКР · интерактивная модель оценки</h1>
+  <span class="ver">v2.0 · этап 2</span>
+  <div class="spacer"></div>
+  <label style="font-size:12px">НИОКР:
+    <select id="selRnd" style="min-width:220px"></select>
+  </label>
+  <button class="btn ghost sm" id="btnAdd">＋ НИОКР</button>
+  <button class="btn ghost sm" id="btnBell">🔔 <span id="bellN">0</span></button>
+  <button class="btn ghost sm" id="btnPush">Разрешить push</button>
+  <button class="btn sm" id="btnSave">Сохранить</button>
+  <button class="btn ghost sm" id="btnExp">Экспорт JSON</button>
+  <button class="btn ghost sm" id="btnImp">Импорт</button>
+  <input type="file" id="impFile" accept=".json" style="display:none">
+</div>
+<div class="tabs" id="tabs">
+  <button data-t="dash" class="on">📊 Дашборд</button>
+  <button data-t="check">✅ Чек-лист (27)</button>
+  <button data-t="pass">📄 Паспорт НИОКР</button>
+  <button data-t="port">🗂 Портфель</button>
+  <button data-t="ref">📚 Справочник</button>
+  <button data-t="rep">🖨 Акт оценки</button>
+</div>
+<main>
+  <section class="tab on" id="tab-dash"></section>
+  <section class="tab" id="tab-check"></section>
+  <section class="tab" id="tab-pass"></section>
+  <section class="tab" id="tab-port"></section>
+  <section class="tab" id="tab-ref"></section>
+  <section class="tab" id="tab-rep"></section>
+  <section class="tab" id="printarea"></section>
+</main>
+<div id="toasts"></div>
+<div id="moverlay"><div class="modal" id="mbox"></div></div>
+
+<script>
+"use strict";
+/* ================= ДАННЫЕ МЕТОДИКИ (чек-лист v2.0, 27 вопросов) ================= */
+const W=[30,35,35];
+const BNAME=["I. Актуальность","II. Эффективность","III. Целесообразность"];
+const BGOAL=["сохраняет ли НИОКР научно-техническую, производственную и практическую ценность",
+"насколько результаты соответствуют вложенным финансовым, трудовым и материальным ресурсам",
+"что организации выгоднее сделать с результатами НИОКР"];
+const QS=[
+["Сохраняется ли потребность организации в результате НИОКР?","Есть ли действующая или перспективная потребность заказчика, подразделений и конечных пользователей?",0],
+["Соответствует ли НИОКР текущим и перспективным задачам организации?","Связана ли разработка со стратегией развития, техническим перевооружением и перспективными программами?",0],
+["Не устарел ли научно-технический результат?","Не появились ли новые технологии, компоненты, алгоритмы, делающие результат морально устаревшим?",0],
+["Сохраняет ли результат научно-техническую новизну?","Существует ли оригинальное решение, преимущество или уникальная компетенция? Не дублирует ли другие разработки?",0],
+["Соответствует ли результат действующим нормативным требованиям?","Проверено ли соответствие актуальным ГОСТ, ОСТ, техрегламентам, требованиям безопасности?",0],
+["Сохраняет ли результат конкурентоспособность и технологическую значимость?","Не появились ли более эффективные отечественные или зарубежные аналоги?",0],
+["Решает ли НИОКР актуальную задачу или продолжается в силу ранее принятых обязательств? ★","Подтверждена ли разработка текущим запросом потребителя? Нет ли продолжения «по инерции» и «эффекту невозвратных затрат»?",0],
+["Если запустить эту НИОКР заново сегодня — организация снова приняла бы такое решение? ★","Тест «нового старта»: ожидаемый эффект против объёма новых вложений; альтернативные приоритетные проекты.",0],
+["Подтверждена ли оценка актуальности объективными внешними данными? ★","Свежесть и полнота анализа рынка, патентного поиска, прогноза направления; не только мнение исполнителя.",0],
+["Достигнуты ли цели и результаты, установленные ТЗ?","Сопоставлены ли фактические результаты с ТЗ, календарным планом и программой испытаний?",1],
+["Соблюдены ли установленные сроки выполнения НИОКР?","Фактические отклонения от плановых сроков и их причины.",1],
+["Соблюдён ли утверждённый бюджет НИОКР?","Плановые и фактические расходы, причины отклонений, допфинансирование.",1],
+["Рационально ли использованы трудовые и материальные ресурсы?","Трудозатраты, загрузка исполнителей, закупки против достигнутых результатов.",1],
+["Достигнут ли запланированный научно-технический уровень?","Характеристики подтверждены расчётами, моделированием, испытаниями, сравнением с аналогами?",1],
+["Сформирован ли реальный научно-технический задел?","РКД, ПО, технологии, методики, прототипы, РИД — повторно используемые результаты.",1],
+["Все ли затраты связаны с результатом; нет ли повторных оплат? ★","Структура затрат: непрофильные расходы, двойные закрытия этапов, полнота первичных документов.",1],
+["Учтены ли и используются ли закупленные, но не использованные ресурсы? ★","Остатки ТМЦ, простаивающее оборудование, возможность применения в других работах.",1],
+["Обоснована ли оставшаяся потребность в финансировании до завершения? ★","Смета оставшихся работ, прогноз итоговой стоимости, риски роста затрат.",1],
+["Имеется ли реальная возможность практического внедрения результата?","Мощности, технологии, комплектующие, персонал, инфраструктура для освоения.",2],
+["Имеется ли конкретный заказчик или потребитель результата?","Подразделение-потребитель, заказчик, объём потребности, сроки внедрения.",2],
+["Оправданы ли дальнейшие вложения в НИОКР?","Ожидаемый эффект против оставшихся затрат и рисков.",2],
+["Выгоднее ли продолжение собственной разработки альтернативам?","Сравнение: своя разработка / покупка / лицензирование / сторонний исполнитель.",2],
+["Обеспечена ли готовность результата к внедрению и освоению производства?","Технологическая зрелость, документация, этапы испытаний и освоения.",2],
+["Определены ли дальнейшие действия и ответственные за внедрение?","Утверждённый план продолжения, модернизации, передачи, приостановки или прекращения.",2],
+["Оценён ли полный объём вложений до реально используемого результата? ★","Включая подготовку производства, обучение, сертификацию, инфраструктуру.",2],
+["Обеспечены ли правовая охрана результатов и свобода их использования? ★","РИД, права соисполнителей, обременения третьих лиц, защита ноу-хау.",2],
+["Установлены ли измеримые показатели эффекта, ответственные и сроки внедрения? ★","План внедрения с KPI, персональными ответственными, сроками, источниками финансирования.",2]
+];
+const ANS=[["5","Да, полностью"],["4","В основном да"],["3","Частично"],["1","Скорее нет"],["0","Нет"],["НП","Н/П"]];
+const SCORE_COLOR={"5":"#2e7d32","4":"#7cb342","3":"#fbc02d","1":"#ef6c00","0":"#c62828","НП":"#9e9e9e"};
+const CTRL=[
+["Утрачена потребность государственного или корпоративного заказчика","Обязательное рассмотрение целесообразности продолжения"],
+["Выявлено дублирование другой НИОКР","Проверка возможности объединения работ"],
+["Подтверждена техническая невозможность достижения заданных характеристик","Рассмотрение прекращения или изменения ТЗ"],
+["Выявлены существенные нарушения требований безопасности","Приостановка соответствующих работ до устранения"],
+["Отсутствует подтверждение существенной части понесённых затрат","Дополнительная финансовая проверка"],
+["Результат имеет стратегическое значение для организации или государства","Отдельная экспертная оценка стратегической ценности"],
+["Результат готов к внедрению, но не используется","Проверка причин отсутствия внедрения и ответственности"]];
+const DECISIONS=["Продолжить без изменения основных параметров","Продолжить с корректировкой ТЗ, сроков и бюджета","Завершить и передать результат на внедрение","Модернизировать или объединить с другой разработкой","Приостановить до устранения выявленных проблем","Прекратить выполнение НИОКР","Рассмотреть списание результатов в установленном порядке","Направить на дополнительную экспертизу"];
+const CATS=[[85,"Высокая","#2e7d32","Продолжить финансирование, внедрять, масштабировать"],
+[70,"Хорошая","#7cb342","Продолжить с устранением выявленных недостатков"],
+[50,"Удовлетворительная","#fbc02d","Пересмотреть ТЗ, бюджет, сроки и план внедрения"],
+[30,"Неудовлетворительная","#ef6c00","Приостановить, провести дополнительную экспертизу"],
+[0,"Критическая","#c62828","Рассмотреть прекращение работ и списание в установленном порядке"]];
+
+/* ================= СОСТОЯНИЕ ================= */
+function newRnd(name,shifr){return{name:name||"Новая НИОКР",shifr:shifr||"НИОКР-XX",podrazd:"",status:"Выполняется",
+cost:"",ready:"",goal:"",product:"",customer:"",executor:"",basis:"",contract:"",dates:"",head:"",
+fin:{plan:"",fact:"",prog:""},ctrl:["","","","","","",""],decision:"",just:"",measures:"",weak:"",strong:"",
+ans:Array(27).fill(""),conf:Array(27).fill(""),com:Array(27).fill(""),cat:""}}
+let state={list:[newRnd("Разработка А (пример)","НИОКР-01")],cur:0,feed:[],push:false};
+const LSKEY="niokr_audit_v1";
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({list:state.list,cur:state.cur}));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d&&d.list&&d.list.length){state.list=d.list;state.cur=d.cur||0;return true;}}catch(e){}return false;}
+
+/* ================= РАСЧЁТ ================= */
+function calc(r){
+  const bl=[0,1,2].map(b=>{let S=0,N=0;
+    for(let i=0;i<27;i++){if(QS[i][2]!==b)continue;const a=r.ans[i];if(a===""||a==="НП")continue;S+=Number(a);N++;}
+    const P=N?S/(5*N):null;return{S,N,P,B:P==null?0:W[b]*P,Wapp:P==null?0:W[b]};});
+  const Wsum=bl.reduce((s,x)=>s+x.Wapp,0),Bsum=bl.reduce((s,x)=>s+x.B,0);
+  const I=Wsum?100*Bsum/Wsum:null;
+  let cat=null,rec=null,col="#9e9e9e";
+  if(I!=null){for(const c of CATS){if(I>=c[0]){cat=c[1];rec=c[3];col=c[2];break;}}}
+  const nCtrl=r.ctrl.filter(x=>x==="Выявлено").length;
+  return{bl,I,cat,rec,col,Wsum,renorm:Wsum>0&&Wsum<100,nCtrl};
+}
+const cur=()=>state.list[state.cur];
+
+/* ================= УВЕДОМЛЕНИЯ ================= */
+function toast(type,title,msg){
+  const ic={ok:"✅",warn:"⚠️",err:"⛔",info:"ℹ️"}[type]||"ℹ️";
+  const d=document.createElement("div");d.className="toast "+type;
+  d.innerHTML='<span class="ic">'+ic+'</span><div><b>'+title+'</b><div>'+msg+'</div></div>';
+  document.getElementById("toasts").appendChild(d);
+  setTimeout(()=>{d.style.opacity="0";d.style.transition=".4s";setTimeout(()=>d.remove(),400);},6500);
+}
+function notify(type,title,msg){
+  state.feed.unshift({t:new Date().toLocaleTimeString("ru-RU"),type,title,msg});
+  if(state.feed.length>40)state.feed.pop();
+  document.getElementById("bellN").textContent=state.feed.length;
+  toast(type,title,msg);
+  if(state.push&&"Notification" in window&&Notification.permission==="granted"){
+    try{new Notification(title,{body:msg});}catch(e){}
+  }
+}
+function showModal(html,btns){
+  const box=document.getElementById("mbox");
+  box.innerHTML=html+'<div class="mbtns">'+btns.map((b,i)=>'<button class="btn '+(b.cls||"")+'" data-mb="'+i+'">'+b.label+'</button>').join("")+'</div>';
+  box.querySelectorAll("[data-mb]").forEach(el=>el.onclick=()=>{const b=btns[+el.dataset.mb];hideModal();if(b.fn)b.fn();});
+  document.getElementById("moverlay").classList.add("on");
+}
+function hideModal(){document.getElementById("moverlay").classList.remove("on");}
+document.getElementById("moverlay").addEventListener("click",e=>{if(e.target.id==="moverlay")hideModal();});
+
+/* ================= SVG-ГРАФИКИ ================= */
+function polar(cx,cy,r,a){const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);return[x,y];}
+function arc(cx,cy,r,a0,a1){const[p0,p1]=[polar(cx,cy,r,a0),polar(cx,cy,r,a1)];
+  return"M"+p0[0]+" "+p0[1]+" A"+r+" "+r+" 0 "+((a1-a0)>Math.PI?1:0)+" 1 "+p1[0]+" "+p1[1];}
+function gauge(I){
+  const cx=110,cy=105,r=86;let s='<svg viewBox="0 0 220 125" width="240">';
+  const zones=[[0,30,"#c62828"],[30,50,"#ef6c00"],[50,70,"#fbc02d"],[70,85,"#7cb342"],[85,100,"#2e7d32"]];
+  for(const z of zones){const a0=Math.PI+(z[0]/100)*Math.PI,a1=Math.PI+(z[1]/100)*Math.PI;
+    s+='<path d="'+arc(cx,cy,r,a0,a1)+'" stroke="'+z[2]+'" stroke-width="16" fill="none" stroke-linecap="butt"/>';}
+  if(I!=null){const a=Math.PI+(I/100)*MathPIfix();const[p]= [polar(cx,cy,r-24,a)];
+    s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#1f3864" stroke-width="4" stroke-linecap="round"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#1f3864"/>';
+    s+='<text x="'+cx+'" y="'+(cy-14)+'" text-anchor="middle" font-size="26" font-weight="800" fill="#1f3864">'+I.toFixed(1)+'</text>';}
+  else{s+='<text x="'+cx+'" y="'+(cy-14)+'" text-anchor="middle" font-size="15" font-weight="700" fill="#9e9e9e">Н/П</text>';}
+  s+='<text x="14" y="120" font-size="10" fill="#8c8c8c">0</text><text x="196" y="120" font-size="10" fill="#8c8c8c">100</text></svg>';
+  return s;
+}
+function MathPIfix(){return Math.PI;}
+function radar(bl){
+  const cx=110,cy=100,R=78;let s='<svg viewBox="0 0 220 200" width="250">';
+  const ang=[-Math.PI/2,Math.PI/2+Math.PI/6*5,Math.PI/2+Math.PI/6];
+  for(const g of[0.33,0.66,1]){s+='<polygon points="'+ang.map(a=>{const[x,y]=polar(cx,cy,R*g,a);return x+","+y;}).join(" ")+'" fill="none" stroke="#dfe6f2"/>';}
+  ang.forEach(a=>{const[x,y]=polar(cx,cy,R,a);s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#dfe6f2"/>';});
+  const pts=ang.map((a,i)=>{const v=bl[i].P==null?0:bl[i].P;const[x,y]=polar(cx,cy,R*v,a);return x+","+y;}).join(" ");
+  s+='<polygon points="'+pts+'" fill="rgba(46,116,181,.30)" stroke="#2e74b5" stroke-width="2"/>';
+  const lbl=["Актуальность","Эффективность","Целесообразность"];
+  ang.forEach((a,i)=>{const[x,y]=polar(cx,cy,R+16,a);s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="10.5" fill="#595959">'+lbl[i]+'</text>';});
+  return s+'</svg>';
+}
+function bars(bl){
+  let h='<div style="display:flex;flex-direction:column;gap:9px">';
+  bl.forEach((b,i)=>{const p=b.P==null?0:b.P*100;
+    h+='<div><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+BNAME[i]+'</span><b>'+(b.P==null?"Н/П":p.toFixed(1)+" %")+' · B='+b.B.toFixed(1)+'</b></div>'+
+    '<div class="bar"><i style="width:'+p+'%;background:'+(p>=70?"#2e7d32":p>=50?"#fbc02d":"#c62828")+'"></i></div></div>';});
+  return h+'</div>';
+}
+function donut(list){
+  const cnt={};list.forEach(r=>{const c=calc(r);const k=c.cat||"Не оценена";cnt[k]=(cnt[k]||0)+1;});
+  const cols={"Высокая":"#2e7d32","Хорошая":"#7cb342","Удовлетворительная":"#fbc02d","Неудовлетворительная":"#ef6c00","Критическая":"#c62828","Не оценена":"#9e9e9e"};
+  const total=list.length||1;let a0=-Math.PI/2,s='<svg viewBox="0 0 200 200" width="190">';
+  for(const k in cnt){const frac=cnt[k]/total,a1=a0+frac*2*Math.PI;
+    s+='<path d="'+arc(100,100,70,a0,a1)+'" stroke="'+(cols[k]||"#9e9e9e")+'" stroke-width="30" fill="none"/>';
+    a0=a1;}
+  s+='<text x="100" y="96" text-anchor="middle" font-size="26" font-weight="800" fill="#1f3864">'+total+'</text>'+
+     '<text x="100" y="114" text-anchor="middle" font-size="10" fill="#8c8c8c">НИОКР в портфеле</text></svg>';
+  let leg='<div style="font-size:12px">';for(const k in cnt){leg+='<div><span class="pill" style="background:'+(cols[k]||"#9e9e9e")+'">'+cnt[k]+'</span> '+k+'</div>';}
+  return s+leg+'</div>';
+}
+
+/* ================= РЕНДЕР: ДАШБОРД ================= */
+function renderDash(){
+  const r=cur(),c=calc(r);
+  const heat=QS.map((q,i)=>{const a=r.ans[i];const col=a===""?"#dfe6f2":SCORE_COLOR[a];
+    return'<div title="В'+(i+1)+': '+(a===""?"не оценено":ANS.find(x=>x[0]===a)[1])+'" style="background:'+col+'" onclick="goTab(\'check\')">'+(i+1)+'</div>';}).join("");
+  const ctrlList=r.ctrl.map((v,i)=>v==="Выявлено"?'<div class="fi err">⛔ '+CTRL[i][0]+' → '+CTRL[i][1]+'</div>':(v==="Требует проверки"?'<div class="fi warn">⚠️ '+CTRL[i][0]+' — требует проверки</div>':"")).join("")||'<div class="mini">Контрольные условия не выявлены.</div>';
+  document.getElementById("tab-dash").innerHTML=
+  '<div class="grid g4">'+
+   '<div class="card kpi"><span class="l">ИНТЕГРАЛЬНЫЙ ПОКАЗАТЕЛЬ I</span><span class="v">'+(c.I==null?"Н/П":c.I.toFixed(1))+' <span style="font-size:14px;color:#8c8c8c">/ 100</span></span><span class="l">'+(c.renorm?"применена ренормировка весов (есть блоки «Н/П» полностью)":"полная схема весов 30/35/35")+'</span></div>'+
+   '<div class="card kpi"><span class="l">ОЦЕНКА СОСТОЯНИЯ</span><span class="v" style="font-size:22px;color:'+(c.col||"#9e9e9e")+'">'+(c.cat||"Недостаточно данных")+'</span><span class="l">'+(c.rec||"ответьте на вопросы чек-листа")+'</span></div>'+
+   '<div class="card kpi"><span class="l">ОТВЕЧЕНО ВОПРОСОВ</span><span class="v">'+r.ans.filter(a=>a!=="").length+' <span style="font-size:14px;color:#8c8c8c">/ 27</span></span><span class="l">из них «Н/П»: '+r.ans.filter(a=>a==="НП").length+'</span></div>'+
+   '<div class="card kpi"><span class="l">КОНТРОЛЬНЫЕ УСЛОВИЯ</span><span class="v" style="color:'+(c.nCtrl?"#c62828":"#2e7d32")+'">'+c.nCtrl+'</span><span class="l">выявлено из 7 (влияют на решение независимо от баллов)</span></div>'+
+  '</div>'+
+  '<div class="grid g3" style="margin-top:14px">'+
+   '<div class="card"><h3>Интегральный балл</h3>'+gauge(c.I)+'</div>'+
+   '<div class="card"><h3>Профиль блоков</h3>'+radar(c.bl)+'</div>'+
+   '<div class="card"><h3>Выполнение блоков</h3>'+bars(c.bl)+
+     '<div class="note" style="margin-top:10px">I = 100·Σ(Wⱼ·Pⱼ) / ΣWⱼ по применимым блокам; Pⱼ = Sⱼ/(5·Nⱼ). «Н/П» исключает вопрос из числителя и знаменателя.</div></div>'+
+  '</div>'+
+  '<div class="grid g2" style="margin-top:14px">'+
+   '<div class="card"><h3>Тепловая карта ответов (вопросы 1–27)</h3><div class="heat">'+heat+'</div>'+
+   '<div class="mini" style="margin-top:8px">5 — тёмно-зелёный · 4 — зелёный · 3 — жёлтый · 1 — оранжевый · 0 — красный · Н/П — серый. Клик — переход к чек-листу.</div></div>'+
+   '<div class="card"><h3>Контрольные условия и сигнал комиссии</h3><div class="feed">'+ctrlList+'</div>'+
+   (c.nCtrl?'<div class="note">Балльная оценка не отменяет действие контрольных условий: итоговое решение принимается с обязательным учётом последствий.</div>':'')+'</div>'+
+  '</div>'+
+  '<div class="card" style="margin-top:14px"><h3>Лента уведомлений</h3><div class="feed">'+
+   (state.feed.map(f=>'<div class="fi '+f.type+'"><b>'+f.t+'</b> · '+f.title+' — '+f.msg+'</div>').join("")||'<div class="mini">Пока пусто.</div>')+'</div></div>';
+}
+
+/* ================= РЕНДЕР: ЧЕК-ЛИСТ ================= */
+function renderCheck(){
+  const r=cur();let h='<div class="note">Заполните ответ и документальное подтверждение по каждому вопросу. Баллы 4–5 без подтверждения («Нет») блокируются предупреждением. «Н/П» требует обоснования в комментарии и исключается из расчёта блока.</div>';
+  for(let b=0;b<3;b++){
+    h+='<div class="blk-h">БЛОК '+BNAME[b].split(". ")[0]+'. '+BNAME[b].split(". ")[1].toUpperCase()+'<span style="font-weight:400;font-size:12px">· цель: '+BGOAL[b]+'</span><span class="w">вес '+W[b]+' %</span></div>';
+    const c=calc(r).bl[b];
+    h+='<div class="blk-sum"><span>Sⱼ (сумма баллов): <b>'+c.S+'</b></span><span>Nⱼ (применимо): <b>'+c.N+'</b> / 9</span><span>Pⱼ (выполнение): <b>'+(c.P==null?"Н/П":(c.P*100).toFixed(1)+" %")+'</b></span><span>Bⱼ (взвешенный): <b>'+c.B.toFixed(2)+' / '+W[b]+'</b></span></div>';
+    for(let i=0;i<27;i++){if(QS[i][2]!==b)continue;
+      const a=r.ans[i],sc=a===""||a==="НП"?null:Number(a);
+      h+='<div class="qrow"><div class="qh"><div class="num">'+(i+1)+'</div><div class="qt"><b>'+QS[i][0]+'</b><span class="est">'+QS[i][1]+'</span></div>'+
+      '<span class="score-chip" style="background:'+(a===""?"#dfe6f2;color:#8c8c8c":SCORE_COLOR[a])+'">'+(sc==null?(a==="НП"?"Н/П":"—"):sc)+'</span></div>'+
+      '<div class="qb"><label>Ответ: <select data-a="'+i+'"><option value="">— не выбран —</option>'+ANS.map(o=>'<option value="'+o[0]+'"'+(a===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></label>'+
+      '<label>Подтверждение: <select data-c="'+i+'"><option value="">—</option><option value="Да"'+(r.conf[i]==="Да"?" selected":"")+'>Да</option><option value="Нет"'+(r.conf[i]==="Нет"?" selected":"")+'>Нет</option></select></label>'+
+      '<input type="text" data-m="'+i+'" placeholder="Комментарий / документы / обоснование «Н/П»" value="'+(r.com[i]||"").replace(/"/g,"&quot;")+'" style="flex:1;min-width:240px">'+
+      '</div></div>';}
+  }
+  document.getElementById("tab-check").innerHTML=h;
+  document.querySelectorAll("#tab-check select[data-a]").forEach(el=>el.onchange=e=>setAns(+e.target.dataset.a,e.target.value));
+  document.querySelectorAll("#tab-check select[data-c]").forEach(el=>el.onchange=e=>setConf(+e.target.dataset.c,e.target.value));
+  document.querySelectorAll("#tab-check input[data-m]").forEach(el=>el.onchange=e=>{cur().com[+e.target.dataset.m]=e.target.value;save();});
+}
+function setAns(i,v){
+  const r=cur();r.ans[i]=v;
+  if(v==="НП"&&!(r.com[i]||"").trim()){
+    showModal('<h2>Обоснование ответа «Н/П» — вопрос '+(i+1)+'</h2><p>Ответ «Н/П» исключает вопрос из числителя и знаменателя расчёта блока. Укажите причину неприменимости (обязательно):</p><textarea id="npTxt" rows="3" style="width:100%"></textarea>',
+    [{label:"Отмена",cls:"gray",fn:()=>{r.ans[i]="";renderCheck();renderDash();}},{label:"Сохранить обоснование",fn:()=>{r.com[i]=document.getElementById("npTxt").value||"Н/П без пояснения";notify("warn","Вопрос "+(i+1)+" исключён из расчёта","«Н/П»: "+r.com[i]);afterChange();}}]);
+  }else if((v==="4"||v==="5")&&r.conf[i]==="Нет"){
+    ruleWarn(i);
+  }else if(v!==""){notify("ok","Вопрос "+(i+1)+" оценён","Ответ: "+ANS.find(x=>x[0]===v)[1]+" → "+(v==="НП"?"исключён":v+" балл(ов)"));afterChange();}
+  else afterChange();
+}
+function setConf(i,v){
+  const r=cur();r.conf[i]=v;
+  if((r.ans[i]==="4"||r.ans[i]==="5")&&v==="Нет")ruleWarn(i);
+  else{save();renderCheck();renderDash();}
+}
+function ruleWarn(i){
+  showModal('<h2>⚠️ Нарушение правила документального подтверждения</h2><p>По вопросу <b>'+(i+1)+'</b> выставлен высокий балл (<b>'+(cur().ans[i]==="4"?"4":"5")+'</b>) при отсутствии документального подтверждения. Согласно методике, баллы 4–5 не могут присваиваться только на основании устных пояснений исполнителя.</p><p>Действия: приложите документ и выберите «Да», либо снизьте балл.</p>',
+  [{label:"Снизить балл до 3",cls:"warn",fn:()=>{cur().ans[i]="3";notify("warn","Балл снижен","Вопрос "+(i+1)+": 5/4 → 3 (нет подтверждения)");afterChange();}},
+   {label:"Оставить (риск комиссии)",cls:"gray",fn:()=>{notify("err","Зафиксировано нарушение правила","Вопрос "+(i+1)+": высокий балл без документа — комиссия обязана проверить");afterChange();}}]);
+}
+function afterChange(){
+  const r=cur(),c=calc(r);
+  if(c.cat&&c.cat!==r.cat){notify("info","Категория изменилась: "+c.cat,"I = "+(c.I==null?"Н/П":c.I.toFixed(1))+" · "+c.rec);r.cat=c.cat;}
+  save();renderCheck();renderDash();renderPort();renderSel();
+}
+
+/* ================= РЕНДЕР: ПАСПОРТ ================= */
+function renderPass(){
+  const r=cur();
+  const f=(k,ph)=>'<input type="text" data-p="'+k+'" value="'+(r[k]||"").replace(/"/g,"&quot;")+'" placeholder="'+ph+'" style="width:100%">';
+  let h='<div class="grid g2"><div class="card"><h3>1. Общие сведения</h3>'+
+  '<div class="field"><label>Наименование НИОКР</label>'+f("name","полное наименование")+'</div>'+
+  '<div class="field"><label>Шифр</label>'+f("shifr","НИОКР-01")+'</div>'+
+  '<div class="field"><label>Заказчик</label>'+f("customer","государственный / корпоративный")+'</div>'+
+  '<div class="field"><label>Исполнитель</label>'+f("executor","головной, соисполнители")+'</div>'+
+  '<div class="field"><label>Подразделение</label>'+f("podrazd","наименование, руководитель")+'</div>'+
+  '<div class="field"><label>Основание выполнения</label>'+f("basis","ГОЗ, госконтракт, инициативная, внутренний заказ")+'</div>'+
+  '<div class="field"><label>Договор (№, дата, стоимость)</label>'+f("contract","")+'</div>'+
+  '<div class="field"><label>Сроки (начало — окончание)</label>'+f("dates","")+'</div>'+
+  '<div class="field"><label>Статус</label><select data-p="status">'+["Выполняется","Завершена","Приостановлена","Прекращена"].map(s=>'<option'+(r.status===s?" selected":"")+'>'+s+'</option>').join("")+'</select></div>'+
+  '<div class="field"><label>Руководитель НИОКР</label>'+f("head","должность, ФИО")+'</div>'+
+  '<div class="field"><label>Краткая цель</label>'+f("goal","какую проблему решает")+'</div>'+
+  '<div class="field"><label>Ключевой результат</label>'+f("product","образец / ПО / технология / документация")+'</div>'+
+  '</div><div class="card"><h3>2. Стоимость и финансирование, млн ₽</h3>'+
+  finRow("plan","Утверждённая (первоначальная) стоимость",r)+finRow("fact","Фактические затраты",r)+finRow("prog","Прогноз затрат до завершения",r)+
+  '<div class="field"><label>Прогнозная итоговая стоимость</label><input type="text" readonly value="'+progTotal(r)+'" style="width:100%;background:#f2f2f2"></div>'+
+  '<div class="field"><label>Отклонение от утверждённой</label><input type="text" readonly value="'+devPct(r)+'" style="width:100%;background:#f2f2f2"></div>'+
+  '<h3 style="margin-top:14px">3. Контрольные условия (7)</h3>'+
+  CTRL.map((c,i)=>'<div class="field"><label style="font-weight:400">'+(i+1)+'. '+c[0]+'</label><select data-k="'+i+'"><option value="">—</option><option'+(r.ctrl[i]==="Выявлено"?" selected":"")+'>Выявлено</option><option'+(r.ctrl[i]==="Не выявлено"?" selected":"")+'>Не выявлено</option><option'+(r.ctrl[i]==="Требует проверки"?" selected":"")+'>Требует проверки</option></select></div>').join("")+
+  '<h3 style="margin-top:14px">4. Решение комиссии</h3>'+
+  '<div class="field"><label>Решение</label><select data-p="decision"><option value="">— не выбрано —</option>'+DECISIONS.map(d=>'<option'+(r.decision===d?" selected":"")+'>'+d+'</option>').join("")+'</select></div>'+
+  '<div class="field" style="align-items:start"><label>Обоснование</label><textarea data-p="just" rows="2" style="width:100%">'+(r.just||"")+'</textarea></div>'+
+  '<div class="field" style="align-items:start"><label>Мероприятия (содержание / ответственный / срок)</label><textarea data-p="measures" rows="2" style="width:100%">'+(r.measures||"")+'</textarea></div>'+
+  '</div></div>';
+  document.getElementById("tab-pass").innerHTML=h;
+  document.querySelectorAll("#tab-pass [data-p]").forEach(el=>el.onchange=e=>{const k=e.target.dataset.p;
+    if(k.indexOf("fin.")===0){cur().fin[k.slice(4)]=e.target.value;}else{cur()[k]=e.target.value;}
+    save();renderSel();renderDash();renderPort();renderPass();});
+  document.querySelectorAll("#tab-pass [data-k]").forEach(el=>el.onchange=e=>{const i=+e.target.dataset.k;cur().ctrl[i]=e.target.value;
+    if(e.target.value==="Выявлено")notify("err","Контрольное условие выявлено","№"+(i+1)+": "+CTRL[i][0]+" → "+CTRL[i][1]);
+    save();renderDash();});
+}
+function finRow(k,lbl,r){return'<div class="field"><label>'+lbl+'</label><input type="number" step="0.01" data-p="fin.'+k+'" value="'+(r.fin[k]||"")+'" style="width:100%"></div>';}
+function progTotal(r){const a=parseFloat(r.fin.fact),b=parseFloat(r.fin.prog);return(isFinite(a)&&isFinite(b))?(a+b).toFixed(2):"—";}
+function devPct(r){const p=parseFloat(r.fin.plan),t=parseFloat(progTotal(r));return(isFinite(p)&&p&&isFinite(t))?((t/p-1)*100).toFixed(1)+" %":"—";}
+
+/* ================= РЕНДЕР: ПОРТФЕЛЬ ================= */
+function renderPort(){
+  let rows=state.list.map((r,i)=>{const c=calc(r);
+    return'<tr><td>'+(i+1)+'</td><td><b>'+r.shifr+'</b><br><span class="mini">'+r.name+'</span></td><td>'+r.status+'</td>'+
+    '<td>'+(r.fin.plan||"—")+'</td><td>'+(r.ready||"—")+'%</td>'+
+    '<td style="text-align:center;font-weight:800;color:'+c.col+'">'+(c.I==null?"Н/П":c.I.toFixed(1))+'</td>'+
+    '<td><span class="pill" style="background:'+c.col+'">'+(c.cat||"Не оценена")+'</span></td>'+
+    '<td><select data-d="'+i+'" style="width:100%"><option value="">—</option>'+DECISIONS.map(d=>'<option'+(r.decision===d?" selected":"")+'>'+d+'</option>').join("")+'</select></td>'+
+    '<td style="text-align:center"><button class="btn sm gray" data-open="'+i+'">открыть</button> <button class="btn sm warn" data-del="'+i+'">✕</button></td></tr>';}).join("");
+  const avg=state.list.map(r=>calc(r).I).filter(x=>x!=null);
+  document.getElementById("tab-port").innerHTML=
+  '<div class="grid g3"><div class="card"><h3>Распределение по категориям</h3>'+donut(state.list)+'</div>'+
+  '<div class="card kpi"><span class="l">НИОКР в портфеле</span><span class="v">'+state.list.length+'</span><span class="l">выполняется: '+state.list.filter(r=>r.status==="Выполняется").length+' · приостановлено: '+state.list.filter(r=>r.status==="Приостановлена").length+'</span></div>'+
+  '<div class="card kpi"><span class="l">СРЕДНИЙ ИНТЕГРАЛЬНЫЙ БАЛЛ</span><span class="v">'+(avg.length?(avg.reduce((a,b)=>a+b,0)/avg.length).toFixed(1):"—")+'</span><span class="l">кандидаты на прекращение (I&lt;50): '+state.list.filter(r=>{const c=calc(r);return c.I!=null&&c.I<50;}).length+'</span></div></div>'+
+  '<div class="card" style="margin-top:14px"><h3>Сводная матрица портфеля</h3><table><tr><th>№</th><th>Шифр / наименование</th><th>Статус</th><th>Стоимость, млн ₽</th><th>Готовность</th><th>I</th><th>Категория</th><th>Управленческое решение</th><th></th></tr>'+rows+'</table>'+
+  '<div style="margin-top:10px" class="noprint"><button class="btn" id="pAdd">＋ Добавить НИОКР</button> <button class="btn gray" id="pCsv">Экспорт CSV</button></div></div>';
+  document.querySelectorAll("#tab-port select[data-d]").forEach(el=>el.onchange=e=>{state.list[+e.target.dataset.d].decision=e.target.value;save();notify("ok","Решение зафиксировано",state.list[+e.target.dataset.d].shifr+": "+e.target.value);});
+  document.querySelectorAll("#tab-port [data-open]").forEach(el=>el.onclick=e=>{state.cur=+e.target.dataset.open;save();renderSel();goTab("dash");});
+  document.querySelectorAll("#tab-port [data-del]").forEach(el=>el.onclick=e=>{const i=+e.target.dataset.del;
+    showModal('<h2>Удалить НИОКР из портфеля?</h2><p><b>'+state.list[i].shifr+' — '+state.list[i].name+'</b> будет удалена вместе с ответами чек-листа.</p>',
+    [{label:"Отмена",cls:"gray"},{label:"Удалить",cls:"warn",fn:()=>{state.list.splice(i,1);if(state.cur>=state.list.length)state.cur=0;if(!state.list.length)state.list.push(newRnd());save();renderAll();notify("warn","НИОКР удалена из портфеля","");}}]);});
+  const pa=document.getElementById("pAdd");if(pa)pa.onclick=addRnd;
+  const pc=document.getElementById("pCsv");if(pc)pc.onclick=exportCsv;
+}
+function exportCsv(){
+  let csv="Шифр;Наименование;Статус;Стоимость;Готовность;I;Категория;Решение\n";
+  state.list.forEach(r=>{const c=calc(r);csv+=[r.shifr,r.name,r.status,r.fin.plan||"",r.ready||"",c.I==null?"":c.I.toFixed(1),c.cat||"",r.decision||""].join(";")+"\n";});
+  download("portfolio_niokr.csv",csv,"text/csv");notify("ok","CSV экспортирован","portfolio_niokr.csv");
+}
+
+/* ================= БАЗА ЗНАНИЙ (этап 2) ================= */
+const IMG_TRL="data:image/jpeg;base64,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";
+const IMG_PORT="data:image/jpeg;base64,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";
+const ANCH=[
+["спрос подтверждён документами заказчика","потребность частична, нужна модернизация","потребность отсутствует"],
+["включена в стратегию и программы развития","связь со стратегией слабая","вне стратегии организации"],
+["более новых решений не выявлено","есть отдельные новые решения","результат морально устарел"],
+["уникальное решение и компетенция","новизна частично утрачена","дублирует другую разработку"],
+["соответствие актуальным нормам проверено","отдельные несоответствия нормам","не соответствует нормативам"],
+["технологическое преимущество подтверждено","преимущество постепенно теряется","аналоги превосходят результат"],
+["текущий запрос потребителя подтверждён","смесь реального спроса и инерции","продолжение чисто по инерции обязательств"],
+["организация безусловно повторила бы запуск","повторный запуск лишь с условиями","запуск заново нецелесообразен"],
+["свежий внешний анализ и патентный поиск","анализ устарел или частичен","только мнение исполнителя"],
+["100 % пунктов ТЗ с протоколами испытаний","выполнено 70–90 % пунктов ТЗ","< 50 % пунктов ТЗ или подмена результатов"],
+["отклонение сроков δт ≤ 5 %","δт 15–30 %, критический путь задет","δт > 50 % либо срыв без продления"],
+["δб ≤ 5 %, раздельный учёт корректен","δб 15–30 %, часть перерасхода не обоснована","δб > 50 % либо затраты не подтверждены"],
+["трудозатраты в пределах ±10 %, закупки использованы","превышение трудозатрат 25–50 %","учёт трудозатрат фиктивен"],
+["характеристики подтверждены испытаниями и сравнимы с аналогами","подтверждено 50–90 % характеристик","характеристики не подтверждены"],
+["документация, ПО и РИД учтены, есть повторное использование","часть задела не оформлена","задел отсутствует"],
+["≥ 95 % затрат подтверждены, дублей нет","подтверждено 75–90 % затрат","< 50 % либо признаки нецелевого использования"],
+["остатков нет или ≤ 5 % стоимости закупок","остатки 15–30 %, решение не принято","остатки > 50 % либо не оприходованы"],
+["детальная смета остатка, прогноз отклонения ≤ 10 %","укрупнённая оценка, отклонение 20–40 %","потребность до завершения не рассчитана"],
+["мощности, персонал и инфраструктура готовы","готовность частична","внедрение практически невозможно"],
+["потребитель, объём и сроки внедрения определены","потребитель определяется","конкретный потребитель отсутствует"],
+["эффект превышает затраты, подтверждён расчётом","оценка эффекта качественная","затраты заведомо превышают эффект"],
+["сравнены все четыре варианта решения","сравнение частичное","альтернативы не сравнивались"],
+["технологическая зрелость и документация готовы","отдельные этажи освоения не определены","к внедрению не готов"],
+["утверждённый план с персональными ответственными","план в проекте","план дальнейших действий отсутствует"],
+["учтены все вложения, включая освоение и сертификацию","оценка полной стоимости приближённая","полная стоимость не оценивалась"],
+["РИД зарегистрированы, обременений нет","регистрация РИД в процессе","права не оформлены, свобода использования неясна"],
+["KPI, ответственные, сроки и источники финансирования утверждены","элементы плана внедрения частичны","измеримые показатели и ответственные отсутствуют"]];
+const TRL9=[["1","Наблюдены и описаны базовые принципы технологии"],
+["2","Сформулирована концепция и потенциальное применение"],
+["3","Доказана принципиальная осуществимость ключевых элементов"],
+["4","Компоненты проверены в лабораторной среде"],
+["5","Компоненты проверены в условно-реальной среде"],
+["6","Прототип проверен в релевантной среде"],
+["7","Прототип продемонстрирован в операционной среде"],
+["8","Система полностью собрана и квалифицирована"],
+["9","Система доказана в реальной эксплуатации / успешной миссии"]];
+function ladderSVG(){
+  let s='<svg viewBox="0 0 560 150" width="100%">';
+  const cols=["#c62828","#c62828","#e65100","#ef6c00","#f9a825","#fbc02d","#9ccc65","#7cb342","#2e7d32"];
+  for(let i=0;i<9;i++){const h=30+i*11;
+    s+='<rect x="'+(14+i*60)+'" y="'+(140-h)+'" width="52" height="'+h+'" rx="6" fill="'+cols[i]+'"/>'+
+       '<text x="'+(40+i*60)+'" y="'+(134-h)+'" text-anchor="middle" font-size="12" font-weight="800" fill="#1f3864">'+(i+1)+'</text>';}
+  s+='<text x="14" y="148" font-size="9.5" fill="#8c8c8c">НИР (идея, концепция)</text><text x="250" y="148" font-size="9.5" fill="#8c8c8c">ОКР, прототипирование</text><text x="440" y="148" font-size="9.5" fill="#8c8c8c">освоение, эксплуатация</text></svg>';
+  return s;
+}
+function schemeSVG(){
+  let s='<svg viewBox="0 0 560 120" width="100%">';
+  const bx=[["Блок I","Актуальность","30 %","#2e74b5"],["Блок II","Эффективность","35 %","#2e5395"],["Блок III","Целесообразность","35 %","#1f3864"]];
+  bx.forEach((b,i)=>{const x=10+i*130;
+    s+='<rect x="'+x+'" y="14" width="118" height="52" rx="9" fill="'+b[3]+'"/>'+
+       '<text x="'+(x+59)+'" y="34" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">'+b[0]+' · '+b[2]+'</text>'+
+       '<text x="'+(x+59)+'" y="52" text-anchor="middle" font-size="10" fill="#cfe3ff">'+b[1]+'</text>'+
+       '<line x1="'+(x+118)+'" y1="40" x2="'+(x+130)+'" y2="40" stroke="#8c8c8c" stroke-width="1.5" marker-end="none"/>';});
+  s+='<rect x="400" y="10" width="150" height="60" rx="10" fill="#fff" stroke="#1f3864" stroke-width="2"/>'+
+     '<text x="475" y="34" text-anchor="middle" font-size="11" font-weight="800" fill="#1f3864">I = Σ Wⱼ·Pⱼ</text>'+
+     '<text x="475" y="52" text-anchor="middle" font-size="9.5" fill="#595959">Pⱼ=Sⱼ/(5·Nⱼ), ренормировка «Н/П»</text>'+
+     '<text x="10" y="96" font-size="10" fill="#595959">9 вопросов × 5 баллов = 45 «сырых» баллов блока → нормирование на применимые → взвешивание → интеграл 0–100.</text></svg>';
+  return s;
+}
+/* ================= РЕНДЕР: СПРАВОЧНИК ================= */
+function renderRef(sub){
+  sub=sub||state.refSub||"m";state.refSub=sub;
+  const tabs=[["m","Методика"],["trl","Готовность TRL/УГТ"],["eco","Экономика"],["world","Мировые практики"],["anch","Якоря баллов"],["gal","Галерея"],["src","Источники"]];
+  let h='<div class="noprint" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'+
+   tabs.map(t=>'<button class="btn sm '+(sub===t[0]?"":"gray")+'" data-rs="'+t[0]+'">'+t[1]+'</button>').join("")+
+   ' <input type="text" id="kbq" placeholder="🔎 поиск по базе знаний…" style="flex:1;min-width:180px"></div>';
+  if(sub==="m"){h+=
+   '<div class="grid g2 kb"><div class="card"><h3>Шкала ответов</h3><table><tr><th>Ответ</th><th>Балл</th><th>Интерпретация</th></tr>'+
+   '<tr><td>Да, полностью</td><td>5</td><td>Требование выполнено, подтверждено документами</td></tr>'+
+   '<tr><td>В основном да</td><td>4</td><td>Незначительные недостатки</td></tr>'+
+   '<tr><td>Частично</td><td>3</td><td>Выполнено не в полном объёме</td></tr>'+
+   '<tr><td>Скорее нет</td><td>1</td><td>Существенные недостатки</td></tr>'+
+   '<tr><td>Нет</td><td>0</td><td>Не выполнено либо нет подтверждения</td></tr>'+
+   '<tr><td>Н/П</td><td>—</td><td>Исключается из расчёта с обоснованием</td></tr></table>'+
+   '<div class="note">Значение «2 балла» намеренно не используется. Баллы 4–5 — только при документальном подтверждении.</div></div>'+
+   '<div class="card"><h3>Математическая модель</h3><div class="formula">Sⱼ = Σ баллов применимых вопросов блока j (0…45)\nNⱼ = число применимых вопросов (0…9)\nPⱼ = Sⱼ / (5·Nⱼ)   — выполнение блока\nBⱼ = Wⱼ · P        — взвешенный балл (W = 30/35/35)\nI  = 100 · ΣBⱼ(прим.) / ΣWⱼ(прим.)  ∈ [0;100]</div>'+
+   '<div style="margin-top:8px">'+schemeSVG()+'</div>'+
+   '<h3 style="margin-top:10px">Итоговая шкала</h3><table><tr><th>I</th><th>Оценка</th><th>Рекомендуемое решение</th></tr>'+
+   CATS.map((c,i)=>'<tr><td>'+c[0]+'–'+(i===0?100:CATS[i-1][0]-1)+'</td><td><span class="pill" style="background:'+c[2]+'">'+c[1]+'</span></td><td>'+c[3]+'</td></tr>').join("")+'</table></div>'+
+   '<div class="card"><h3>Контрольные условия (7)</h3><table><tr><th>№</th><th>Условие</th><th>Последствие</th></tr>'+CTRL.map((c,i)=>'<tr><td>'+(i+1)+'</td><td>'+c[0]+'</td><td>'+c[1]+'</td></tr>').join("")+'</table>'+
+   '<div class="note">Интегральный показатель — инструмент поддержки решения, а не самостоятельное основание для прекращения НИОКР или списания активов.</div></div>'+
+   '<div class="card"><h3>Глоссарий</h3><table><tr><th>Термин</th><th>Значение</th></tr>'+
+   '<tr><td>TRL / УГТ</td><td>уровень технологической готовности 1–9 (NASA; в РФ — УГТ): от базовых принципов до реальной эксплуатации</td></tr>'+
+   '<tr><td>NPV / IRR</td><td>чистая приведённая стоимость / внутренняя норма доходности (вкладка «Экономика»)</td></tr>'+
+   '<tr><td>Stage-Gate</td><td>поэтапное управление с контрольными воротами Go/Kill/Hold/Recycle</td></tr>'+
+   '<tr><td>AHP (Саати)</td><td>вывод весов критериев парными сравнениями с проверкой согласованности</td></tr>'+
+   '<tr><td>РИД</td><td>результаты интеллектуальной деятельности: патенты, свидетельства, ноу-хау</td></tr>'+
+   '<tr><td>Ренормировка</td><td>перераспределение веса полностью неприменимого блока: I = 100·ΣBⱼ/ΣWⱼ</td></tr></table></div></div>';}
+  else if(sub==="trl"){h+=
+   '<div class="grid g2 kb"><div class="card"><h3>Шкала TRL (NASA, 1–9)</h3>'+ladderSVG()+
+   '<table style="margin-top:8px"><tr><th>TRL</th><th>Определение</th></tr>'+TRL9.map(t=>'<tr><td><b>'+t[0]+'</b></td><td>'+t[1]+'</td></tr>').join("")+'</table></div>'+
+   '<div class="card"><h3>Нормативная база РФ</h3><p>ГОСТ Р 15.301-2016 «Система разработки и постановки продукции на производство. Продукция производственно-технического назначения. Порядок разработки и постановки на производство» устанавливает стадии жизненного цикла по ГОСТ Р 15.000: стадия «Разработка» (НИР → ОКР → головной образец) и стадия «Постановка на производство».</p>'+
+   '<table><tr><th>Диапазон TRL</th><th>Ориентировочная стадия по ГОСТ Р 15.301-2016</th></tr>'+
+   '<tr><td>1–3</td><td>НИР: поиск, концепция, обоснование осуществимости</td></tr>'+
+   '<tr><td>4–6</td><td>ОКР: эскизный/технический проект, опытный образец, испытания в релевантных средах</td></tr>'+
+   '<tr><td>7–8</td><td>Головной образец, приёмочные испытания, подготовка производства</td></tr>'+
+   '<tr><td>9</td><td>Серийное производство, реальная эксплуатация</td></tr></table>'+
+   '<div class="note">Применение в модели: поле «TRL/УГТ» на слайде 5 стандарта презентации и вопросы 14, 23 чек-листа. Вход в следующую стадию допускается при достигнутом УГТ не ниже планового — правило «ворот» (см. «Мировые практики»).</div>'+
+   '<div class="card" style="box-shadow:none;padding:0"><img alt="Диаграмма TRL (источник: ResearchGate, обзор зрелости технологий)" src="'+IMG_TRL+'" style="width:100%;border-radius:10px"><div class="mini">Диаграмма зрелости технологий (иллюстрация из открытых источников, встроена в файл).</div></div></div></div>';}
+  else if(sub==="eco"){h+=
+   '<div class="grid g2 kb"><div class="card"><h3>Формулы экономической оценки</h3><div class="formula">NPV = Σₜ (CFₜ / (1+r)ᵗ) − I₀\nIRR:  NPV = 0  (пороговая доходность)\nPP (срок окупаемости): Σ CFₜ ≥ I₀\nr — ставка дисконтирования (стоимость капитала / WACC,\n    для госпроектов — нормативная ставка дисконта)</div>'+
+   '<table style="margin-top:8px"><tr><th>Критерий</th><th>Правило решения</th></tr>'+
+   '<tr><td>NPV &gt; 0</td><td>внедрение/продолжение экономически оправдано</td></tr>'+
+   '<tr><td>IRR &gt; r</td><td>доходность выше стоимости капитала</td></tr>'+
+   '<tr><td>PP ≤ горизонта планирования</td><td>окупаемость в приемлемый срок</td></tr></table></div>'+
+   '<div class="card"><h3>Как применять к НИОКР</h3><p>1) Денежные потоки CFₜ строятся от внедрения результата (экономия, выручка, предотвращённые затраты), а не от самой НИОКР. 2) Горизонт — цикл жизни продукта (обычно 5–10 лет). 3) Для оборонных и стратегических работ помимо NPV обязательно оценивается нефинансовый эффект: технологическая независимость, безопасность, снижение импортной зависимости, развитие компетенций. 4) Неопределённость потоков отражается сценариями и чувствительностью (этап 3 модели).</p>'+
+   '<div class="note">Связь с чек-листом: вопросы 21 («оправданы ли вложения»), 25 ★ («полная стоимость до используемого результата»), 18 ★ (прогноз остатка финансирования) блока II/III; слайд 8 стандарта презентации требует NPV/IRR/окупаемость «если применимо».</div></div></div>';}
+  else if(sub==="world"){h+=
+   '<div class="grid g2 kb"><div class="card"><h3>Horizon Europe (ЭК)</h3><p>Три критерия: Excellence, Impact, Implementation; шкала 0–5; пороги: ≥ 3 по каждому критерию и ≥ 10 из 15 суммарно. Заявка 5/5/2 отклоняется несмотря на высокий суммарный балл.</p><div class="note">Урок для модели: пороги по блокам важнее интеграла — в чек-листе эту роль играют контрольные условия и правило «4–5 только с документом».</div></div>'+
+   '<div class="card"><h3>Stage-Gate®</h3><p>Каждый гейт — решение Go / Kill / Hold / Recycle по портфелю; ворота проверяют финансовую состоятельность и соответствие графику; портфельный обзор балансирует риск/доходность.</p><div class="note">Аналогия в модели: 8 вариантов решения комиссии (в т.ч. «приостановить» = Hold, «прекратить» = Kill) и портфельная матрица.</div></div>'+
+   '<div class="card"><h3>NASA TRL-гейтинг</h3><p>Переход технологии на следующую стадию допускается при достигнутом TRL не ниже планового; оценка готовности — обязательный элемент независимой экспертизы.</p><div class="note">Аналогия: вопросы 14 и 23 чек-листа + поле УГТ на слайде 5.</div></div>'+
+   '<div class="card"><h3>AHP / метод Саати</h3><p>Веса критериев выводятся из матрицы парных сравнений (шкала 1–9), согласованность контролируется коэффициентом CR &lt; 0,1.</p><div class="note">Перспектива модели (этап 5): редактор весов блоков с AHP-проверкой вместо фиксированных 30/35/35.</div></div></div>';}
+  else if(sub==="anch"){h+=
+   '<div class="card kb"><h3>Якорные описания баллов по всем 27 вопросам</h3><table><tr><th>№</th><th>Вопрос (сокращённо)</th><th>5 баллов</th><th>3 балла</th><th>0 баллов</th></tr>'+
+   QS.map((q,i)=>'<tr><td>'+(i+1)+'</td><td>'+q[0].replace(/ ★/," ★")+'</td><td>'+ANCH[i][0]+'</td><td>'+ANCH[i][1]+'</td><td>'+ANCH[i][2]+'</td></tr>').join("")+'</table>'+
+   '<div class="note">Правило консервативности: при ситуации «между якорями» выбирается меньший балл. Полные количественные пороги блока II (δт, δб, доли подтверждённых затрат) — в документе «3_Блок-II_Эффективность_детальные_критерии.md».</div></div>';}
+  else if(sub==="gal"){h+=
+   '<div class="grid g2 kb"><div class="card"><h3>Схема взвешивания блоков</h3>'+schemeSVG()+'</div>'+
+   '<div class="card"><h3>Лестница зрелости (TRL 1–9)</h3>'+ladderSVG()+'</div>'+
+   '<div class="card"><h3>Диаграмма зрелости технологий</h3><img alt="TRL diagram" src="'+IMG_TRL+'" style="width:100%;border-radius:10px"><div class="mini">Источник: ResearchGate (открытая публикация), иллюстрация встроена.</div></div>'+
+   '<div class="card"><h3>Пузырьковая матрица портфеля</h3><img alt="Portfolio bubble chart" src="'+IMG_PORT+'" style="width:100%;border-radius:10px"><div class="mini">Источник: ppmexecution.com (пример приоритизационной пузырьковой матрицы), иллюстрация встроена.</div></div></div>';}
+  else{h+=
+   '<div class="card kb"><h3>Источники базы знаний (собрано на этапе 2)</h3><div class="src" style="font-size:12.5px;line-height:1.7">'+
+   '1. ГОСТ Р 15.301-2016 «Система разработки и постановки продукции на производство…» — docs.cntd.ru/document/1200141162; ecotvet.ru/npa/gost/GST_R_15_301-2016<br>'+
+   '2. NASA Technology Readiness Levels — nasa.gov/directorates/somd/space-communications-navigation-program/technology-readiness-levels; esto.nasa.gov/trl; определения: nasa.gov/wp-content/uploads/2017/12/458490main_trl_definitions.pdf<br>'+
+   '3. Horizon Europe evaluation: критерии Excellence/Impact/Implementation, пороги 3/5 и 10/15 — ec.europa.eu/info/funding-tenders/…/standard-briefing-slides-for-experts_he_en.pdf; criteri.ai/blog/horizon-europe-evaluation-criteria-scoring-guide<br>'+
+   '4. Stage-Gate®: гейты Go/Kill/Hold/Recycle, портфельное управление — stage-gate.com/blog/the-stage-gate-model-an-overview; corasystems.com/guidebooks/stage-gate-process-modern-innovation-guide<br>'+
+   '5. Оценка уровней готовности (TRL/УГТ) в управлении технологическими проектами — cyberleninka.ru (статья «Оценка уровней готовности как инструмент управления…»); rtmtech.ru/articles/ocenka-trl<br>'+
+   '6. Weighted scoring model — tempo.io/blog/weighted-scoring-model; larksuite.com/library/project-management/…/scoring-model-in-project-management<br>'+
+   '7. Пузырьковые матрицы портфеля R&D — ppmexecution.com/five-uses-of-a-prioritization-scoring-model/portfolio-bubble-chart; syncopation.com/blog/riskreward-bubble-charts…<br>'+
+   '8. Внутренние документы методики: чек-лист аудита НИОКР v2.0 (27 вопросов), детальные критерии блока II, стандарт презентации «Паспорт текущего состояния НИОКР».</div>'+
+   '<div class="note">Ссылки открываются при наличии сети; изображения встроены в файл и доступны офлайн.</div></div>';}
+  document.getElementById("tab-ref").innerHTML=h;
+  document.querySelectorAll("#tab-ref [data-rs]").forEach(b=>b.onclick=e=>renderRef(e.target.dataset.rs));
+  const q=document.getElementById("kbq");
+  if(q)q.oninput=e=>{const v=e.target.value.toLowerCase();
+    document.querySelectorAll("#tab-ref .kb .card").forEach(c=>{c.style.display=c.textContent.toLowerCase().indexOf(v)>=0?"":"none";});};
+}
+
+/* ================= РЕНДЕР: АКТ ================= */
+function renderRep(){
+  const r=cur(),c=calc(r);
+  const html='<div class="card"><h3>АКТ ОЦЕНКИ НИОКР — форма итогового заключения комиссии</h3>'+
+  '<p><b>1. Общие сведения.</b> Наименование: '+r.name+' · Шифр: '+r.shifr+' · Исполнитель: '+(r.executor||"__")+' · Заказчик: '+(r.customer||"__")+' · Сроки: '+(r.dates||"__")+' · Утверждённая стоимость: '+(r.fin.plan||"__")+' млн ₽ · Фактические затраты: '+(r.fin.fact||"__")+' млн ₽ · Состояние: '+r.status+'.</p>'+
+  '<p><b>2. Результаты интегральной оценки.</b></p><table><tr><th>Показатель</th><th>Значение</th></tr>'+
+  '<tr><td>Актуальность (B₁)</td><td>'+c.bl[0].B.toFixed(2)+' / 30 (P₁='+(c.bl[0].P==null?"Н/П":(c.bl[0].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td>Эффективность (B₂)</td><td>'+c.bl[1].B.toFixed(2)+' / 35 (P₂='+(c.bl[1].P==null?"Н/П":(c.bl[1].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td>Целесообразность (B₃)</td><td>'+c.bl[2].B.toFixed(2)+' / 35 (P₃='+(c.bl[2].P==null?"Н/П":(c.bl[2].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td><b>Интегральный показатель I</b></td><td><b>'+(c.I==null?"Н/П":c.I.toFixed(1))+' / 100</b> — оценка «'+(c.cat||"Недостаточно данных")+'»'+(c.renorm?" (применена ренормировка весов)":"")+'</td></tr></table>'+
+  '<p><b>3. Выявленные недостатки:</b> '+(r.weak||"____________")+'<br><b>4. Сильные стороны:</b> '+(r.strong||"____________")+'</p>'+
+  '<p><b>5. Контрольные условия:</b> выявлено '+c.nCtrl+' из 7.'+(c.nCtrl?" Перечень: "+r.ctrl.map((v,i)=>v==="Выявлено"?CTRL[i][0]:null).filter(Boolean).join("; "):"")+'</p>'+
+  '<p><b>6. Решение комиссии:</b> '+(r.decision||"____________")+'<br><b>Обоснование:</b> '+(r.just||"____________")+'<br><b>Мероприятия:</b> '+(r.measures||"____________")+'</p>'+
+  '<p><b>7. Выводная часть.</b> По результатам аудита установлено: НИОКР «'+r.name+'» получает интегральную оценку '+(c.I==null?"Н/П":c.I.toFixed(1))+' из 100 ('+(c.cat||"данных недостаточно")+'). Рекомендация модели: '+(c.rec||"—")+'. Комиссия подтверждает либо изменяет решение с учётом контрольных условий и содержательного анализа.</p>'+
+  '<p class="mini">Председатель комиссии: ____________ Члены комиссии: ____________ Дата: ____________</p>'+
+  '<button class="btn noprint" onclick="printRep()">🖨 Печать / PDF</button> <button class="btn gray noprint" onclick="copyRep()">📋 Копировать текст</button></div>';
+  document.getElementById("tab-rep").innerHTML=html;
+  document.getElementById("printarea").innerHTML=html;
+}
+function printRep(){renderRep();window.print();}
+function copyRep(){
+  const t=document.getElementById("printarea").innerText;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>notify("ok","Текст акта скопирован","вставьте в Word"));}
+  else{showModal('<h2>Текст акта</h2><textarea rows="14" style="width:100%">'+t.replace(/</g,"&lt;")+'</textarea>',[{label:"Закрыть",cls:"gray"}]);}
+}
+
+/* ================= СЕРВИС ================= */
+function renderSel(){
+  const s=document.getElementById("selRnd");
+  s.innerHTML=state.list.map((r,i)=>'<option value="'+i+'"'+(i===state.cur?" selected":"")+'>'+r.shifr+' — '+r.name+'</option>').join("");
+}
+function renderAll(){renderSel();renderDash();renderCheck();renderPass();renderPort();renderRef();renderRep();}
+function goTab(t){document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("on",s.id==="tab-"+t));
+  if(t==="dash")renderDash();else if(t==="check")renderCheck();else if(t==="pass")renderPass();
+  else if(t==="port")renderPort();else if(t==="rep")renderRep();}
+document.getElementById("tabs").addEventListener("click",e=>{if(e.target.dataset.t)goTab(e.target.dataset.t);});
+document.getElementById("selRnd").onchange=e=>{state.cur=+e.target.value;save();renderAll();};
+document.getElementById("btnAdd").onclick=addRnd;
+function addRnd(){
+  showModal('<h2>Добавить НИОКР в портфель</h2><div class="field"><label>Наименование</label><input type="text" id="nName" style="width:100%"></div><div class="field"><label>Шифр</label><input type="text" id="nShifr" style="width:100%"></div>',
+  [{label:"Отмена",cls:"gray"},{label:"Добавить",fn:()=>{const r=newRnd(document.getElementById("nName").value,document.getElementById("nShifr").value);state.list.push(r);state.cur=state.list.length-1;save();renderAll();notify("ok","НИОКР добавлена",r.shifr+" — "+r.name);}}]);
+}
+document.getElementById("btnBell").onclick=()=>{
+  showModal('<h2>🔔 Лента уведомлений</h2><div class="feed">'+(state.feed.map(f=>'<div class="fi '+f.type+'"><b>'+f.t+'</b> · '+f.title+' — '+f.msg+'</div>').join("")||'<div class="mini">Пока пусто.</div>')+'</div>',[{label:"Закрыть",cls:"gray"}]);};
+document.getElementById("btnPush").onclick=()=>{
+  if(!("Notification" in window)){notify("info","Push недоступен в этой среде","используются встроенные toast-уведомления и лента");return;}
+  Notification.requestPermission().then(p=>{if(p==="granted"){state.push=true;notify("ok","Push-уведомления включены","ключевые события будут дублироваться системными уведомлениями");}else notify("warn","Разрешение не выдано","остаются встроенные уведомления");});};
+document.getElementById("btnSave").onclick=()=>{save();notify("ok","Сохранено","данные записаны в localStorage браузера");};
+function download(name,content,mime){
+  const b=new Blob([content],{type:mime||"application/json"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById("btnExp").onclick=()=>{download("НИОКР_аудит_v1.json",JSON.stringify({list:state.list,cur:state.cur},null,1));notify("ok","Экспорт выполнен","НИОКР_аудит_v1.json");};
+document.getElementById("btnImp").onclick=()=>document.getElementById("impFile").click();
+document.getElementById("impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.list){state.list=d.list;state.cur=d.cur||0;save();renderAll();notify("ok","Импорт выполнен","загружено НИОКР: "+state.list.length);}}catch(err){notify("err","Ошибка импорта","файл не распознан");}};rd.readAsText(f);};
+
+/* ================= СТАРТ ================= */
+const had=load();
+renderAll();
+if(!had){
+  showModal('<h2>Добро пожаловать в модель аудита НИОКР (v1.0)</h2><p>Интерактивная реализация финального чек-листа аудита НИОКР: <b>27 вопросов</b> в трёх блоках (Актуальность 30 % · Эффективность 35 % · Целесообразность 35 %), автоматический расчёт интегрального показателя <b>I (0–100)</b> с обработкой ответов «Н/П» и ренормировкой весов.</p><p><b>Вкладки:</b> Дашборд (диаграммы и категория) · Чек-лист (ответы, подтверждения, комментарии) · Паспорт (сведения, финансы, контрольные условия, решение) · Портфель (матрица нескольких НИОКР) · Справочник (методика, шкалы, источники) · Акт оценки (печать/PDF, копирование в Word).</p><p><b>Уведомления:</b> toast-всплывашки, лента на дашборде и системные push (кнопка «Разрешить push»).</p>',
+  [{label:"Начать работу"}]);
+}
+</script>
+</body>
+</html>

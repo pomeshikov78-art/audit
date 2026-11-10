@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Аудит НИОКР — интерактивная модель оценки, v1.0</title>
+<style>
+:root{
+  --navy:#1f3864; --navy2:#2e5395; --accent:#2e74b5; --sky:#9db7e0;
+  --bg:#f4f6fa; --card:#ffffff; --ink:#262626; --gray:#595959; --lgray:#8c8c8c;
+  --red:#c62828; --orange:#ef6c00; --yellow:#fbc02d; --green:#2e7d32; --lgreen:#7cb342; --np:#9e9e9e;
+  --input:#fff2cc; --shadow:0 2px 10px rgba(31,56,100,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 "Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 18px;flex-wrap:wrap}
+.topbar .logo{width:34px;height:34px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.topbar h1{font-size:16px;margin:0;font-weight:600}
+.topbar .ver{background:var(--accent);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700}
+.topbar .spacer{flex:1}
+.btn{border:0;border-radius:8px;padding:8px 14px;font:600 12.5px "Segoe UI",sans-serif;cursor:pointer;background:var(--accent);color:#fff;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;color:#fff;border:1px solid var(--sky)}
+.btn.warn{background:var(--orange)}
+.btn.gray{background:#e8ebf2;color:var(--navy)}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+select,input[type=text],input[type=number],textarea{font:13px "Segoe UI",sans-serif;border:1px solid #c6cede;border-radius:7px;padding:6px 8px;background:#fff;color:var(--ink)}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--sky)}
+.tabs{display:flex;gap:4px;background:#e6ebf4;padding:8px 14px 0;flex-wrap:wrap;position:sticky;top:54px;z-index:30}
+.tabs button{border:0;border-radius:9px 9px 0 0;padding:9px 16px;font:600 13px "Segoe UI",sans-serif;cursor:pointer;background:transparent;color:var(--gray)}
+.tabs button.on{background:var(--bg);color:var(--navy);box-shadow:0 -2px 6px rgba(31,56,100,.08)}
+main{padding:16px 18px 60px;max-width:1420px;margin:0 auto}
+section.tab{display:none}
+section.tab.on{display:block}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px}
+.card h3{margin:0 0 10px;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-size:30px;font-weight:800;color:var(--navy)}
+.kpi .l{font-size:11.5px;color:var(--gray)}
+.pill{display:inline-block;border-radius:10px;padding:2px 10px;font-size:11.5px;font-weight:700;color:#fff}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{background:var(--navy);color:#fff;padding:7px 8px;text-align:left;font-size:11.5px}
+td{border:1px solid #e2e7f0;padding:6px 8px;vertical-align:top}
+tr:nth-child(even) td{background:#f6f8fc}
+.qrow{border:1px solid #e2e7f0;border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+.qrow .qh{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#f6f8fc}
+.qrow .num{min-width:26px;height:26px;border-radius:7px;background:var(--navy2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.qrow .qt{flex:1}
+.qrow .qt b{font-size:13px}
+.qrow .qt .est{display:block;color:var(--gray);font-size:11.5px;margin-top:3px}
+.qrow .qb{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:9px 12px}
+.score-chip{min-width:38px;text-align:center;border-radius:8px;padding:5px 8px;font-weight:800;color:#fff;background:var(--np)}
+.blk-h{display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:10px;padding:9px 14px;margin:16px 0 10px;font-weight:700}
+.blk-h .w{margin-left:auto;background:var(--accent);border-radius:9px;padding:2px 10px;font-size:12px}
+.blk-sum{display:flex;gap:18px;flex-wrap:wrap;background:#eef3fa;border-radius:10px;padding:9px 14px;font-size:12.5px;margin-bottom:6px}
+.blk-sum b{color:var(--navy)}
+.heat{display:flex;gap:3px;flex-wrap:wrap}
+.heat div{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:700;cursor:pointer}
+#toasts{position:fixed;top:64px;right:16px;z-index:90;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{border-radius:10px;padding:10px 14px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:12.5px;animation:tin .25s;display:flex;gap:9px;align-items:flex-start}
+.toast .ic{font-size:15px}
+.toast.ok{background:var(--green)}.toast.warn{background:var(--orange)}.toast.err{background:var(--red)}.toast.info{background:var(--navy2)}
+@keyframes tin{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+#moverlay{position:fixed;inset:0;background:rgba(20,30,55,.55);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+#moverlay.on{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 10px;font-size:17px;color:var(--navy)}
+.modal .mbtns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.feed{max-height:230px;overflow:auto}
+.feed .fi{border-left:4px solid var(--accent);background:#f4f7fc;border-radius:0 8px 8px 0;padding:6px 10px;margin-bottom:6px;font-size:12px}
+.feed .fi.warn{border-color:var(--orange)}.feed .fi.err{border-color:var(--red)}.feed .fi.ok{border-color:var(--green)}
+.field{display:grid;grid-template-columns:230px 1fr;gap:8px;align-items:center;margin-bottom:7px}
+.field label{font-size:12.5px;color:var(--gray);font-weight:600}
+.note{background:#fbf6e9;border-left:4px solid var(--yellow);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12.5px;margin:10px 0}
+.formula{background:#10233f;color:#cfe3ff;border-radius:9px;padding:10px 14px;font:12.5px/1.6 Consolas,monospace;overflow:auto}
+.src a{color:var(--accent)}
+.mini{font-size:11px;color:var(--lgray)}
+.bar{height:14px;border-radius:7px;background:#e6ebf4;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:7px}
+@media print{
+  .topbar,.tabs,#toasts,#moverlay,.noprint{display:none!important}
+  main{padding:0}section.tab{display:none!important}section.tab#printarea{display:block!important}
+  body{background:#fff}
+  .card{box-shadow:none;border:1px solid #bbb}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">НК</div>
+  <h1>Аудит НИОКР · интерактивная модель оценки</h1>
+  <span class="ver">v1.0 · этап 1</span>
+  <div class="spacer"></div>
+  <label style="font-size:12px">НИОКР:
+    <select id="selRnd" style="min-width:220px"></select>
+  </label>
+  <button class="btn ghost sm" id="btnAdd">＋ НИОКР</button>
+  <button class="btn ghost sm" id="btnBell">🔔 <span id="bellN">0</span></button>
+  <button class="btn ghost sm" id="btnPush">Разрешить push</button>
+  <button class="btn sm" id="btnSave">Сохранить</button>
+  <button class="btn ghost sm" id="btnExp">Экспорт JSON</button>
+  <button class="btn ghost sm" id="btnImp">Импорт</button>
+  <input type="file" id="impFile" accept=".json" style="display:none">
+</div>
+<div class="tabs" id="tabs">
+  <button data-t="dash" class="on">📊 Дашборд</button>
+  <button data-t="check">✅ Чек-лист (27)</button>
+  <button data-t="pass">📄 Паспорт НИОКР</button>
+  <button data-t="port">🗂 Портфель</button>
+  <button data-t="ref">📚 Справочник</button>
+  <button data-t="rep">🖨 Акт оценки</button>
+</div>
+<main>
+  <section class="tab on" id="tab-dash"></section>
+  <section class="tab" id="tab-check"></section>
+  <section class="tab" id="tab-pass"></section>
+  <section class="tab" id="tab-port"></section>
+  <section class="tab" id="tab-ref"></section>
+  <section class="tab" id="tab-rep"></section>
+  <section class="tab" id="printarea"></section>
+</main>
+<div id="toasts"></div>
+<div id="moverlay"><div class="modal" id="mbox"></div></div>
+
+<script>
+"use strict";
+/* ================= ДАННЫЕ МЕТОДИКИ (чек-лист v2.0, 27 вопросов) ================= */
+const W=[30,35,35];
+const BNAME=["I. Актуальность","II. Эффективность","III. Целесообразность"];
+const BGOAL=["сохраняет ли НИОКР научно-техническую, производственную и практическую ценность",
+"насколько результаты соответствуют вложенным финансовым, трудовым и материальным ресурсам",
+"что организации выгоднее сделать с результатами НИОКР"];
+const QS=[
+["Сохраняется ли потребность организации в результате НИОКР?","Есть ли действующая или перспективная потребность заказчика, подразделений и конечных пользователей?",0],
+["Соответствует ли НИОКР текущим и перспективным задачам организации?","Связана ли разработка со стратегией развития, техническим перевооружением и перспективными программами?",0],
+["Не устарел ли научно-технический результат?","Не появились ли новые технологии, компоненты, алгоритмы, делающие результат морально устаревшим?",0],
+["Сохраняет ли результат научно-техническую новизну?","Существует ли оригинальное решение, преимущество или уникальная компетенция? Не дублирует ли другие разработки?",0],
+["Соответствует ли результат действующим нормативным требованиям?","Проверено ли соответствие актуальным ГОСТ, ОСТ, техрегламентам, требованиям безопасности?",0],
+["Сохраняет ли результат конкурентоспособность и технологическую значимость?","Не появились ли более эффективные отечественные или зарубежные аналоги?",0],
+["Решает ли НИОКР актуальную задачу или продолжается в силу ранее принятых обязательств? ★","Подтверждена ли разработка текущим запросом потребителя? Нет ли продолжения «по инерции» и «эффекту невозвратных затрат»?",0],
+["Если запустить эту НИОКР заново сегодня — организация снова приняла бы такое решение? ★","Тест «нового старта»: ожидаемый эффект против объёма новых вложений; альтернативные приоритетные проекты.",0],
+["Подтверждена ли оценка актуальности объективными внешними данными? ★","Свежесть и полнота анализа рынка, патентного поиска, прогноза направления; не только мнение исполнителя.",0],
+["Достигнуты ли цели и результаты, установленные ТЗ?","Сопоставлены ли фактические результаты с ТЗ, календарным планом и программой испытаний?",1],
+["Соблюдены ли установленные сроки выполнения НИОКР?","Фактические отклонения от плановых сроков и их причины.",1],
+["Соблюдён ли утверждённый бюджет НИОКР?","Плановые и фактические расходы, причины отклонений, допфинансирование.",1],
+["Рационально ли использованы трудовые и материальные ресурсы?","Трудозатраты, загрузка исполнителей, закупки против достигнутых результатов.",1],
+["Достигнут ли запланированный научно-технический уровень?","Характеристики подтверждены расчётами, моделированием, испытаниями, сравнением с аналогами?",1],
+["Сформирован ли реальный научно-технический задел?","РКД, ПО, технологии, методики, прототипы, РИД — повторно используемые результаты.",1],
+["Все ли затраты связаны с результатом; нет ли повторных оплат? ★","Структура затрат: непрофильные расходы, двойные закрытия этапов, полнота первичных документов.",1],
+["Учтены ли и используются ли закупленные, но не использованные ресурсы? ★","Остатки ТМЦ, простаивающее оборудование, возможность применения в других работах.",1],
+["Обоснована ли оставшаяся потребность в финансировании до завершения? ★","Смета оставшихся работ, прогноз итоговой стоимости, риски роста затрат.",1],
+["Имеется ли реальная возможность практического внедрения результата?","Мощности, технологии, комплектующие, персонал, инфраструктура для освоения.",2],
+["Имеется ли конкретный заказчик или потребитель результата?","Подразделение-потребитель, заказчик, объём потребности, сроки внедрения.",2],
+["Оправданы ли дальнейшие вложения в НИОКР?","Ожидаемый эффект против оставшихся затрат и рисков.",2],
+["Выгоднее ли продолжение собственной разработки альтернативам?","Сравнение: своя разработка / покупка / лицензирование / сторонний исполнитель.",2],
+["Обеспечена ли готовность результата к внедрению и освоению производства?","Технологическая зрелость, документация, этапы испытаний и освоения.",2],
+["Определены ли дальнейшие действия и ответственные за внедрение?","Утверждённый план продолжения, модернизации, передачи, приостановки или прекращения.",2],
+["Оценён ли полный объём вложений до реально используемого результата? ★","Включая подготовку производства, обучение, сертификацию, инфраструктуру.",2],
+["Обеспечены ли правовая охрана результатов и свобода их использования? ★","РИД, права соисполнителей, обременения третьих лиц, защита ноу-хау.",2],
+["Установлены ли измеримые показатели эффекта, ответственные и сроки внедрения? ★","План внедрения с KPI, персональными ответственными, сроками, источниками финансирования.",2]
+];
+const ANS=[["5","Да, полностью"],["4","В основном да"],["3","Частично"],["1","Скорее нет"],["0","Нет"],["НП","Н/П"]];
+const SCORE_COLOR={"5":"#2e7d32","4":"#7cb342","3":"#fbc02d","1":"#ef6c00","0":"#c62828","НП":"#9e9e9e"};
+const CTRL=[
+["Утрачена потребность государственного или корпоративного заказчика","Обязательное рассмотрение целесообразности продолжения"],
+["Выявлено дублирование другой НИОКР","Проверка возможности объединения работ"],
+["Подтверждена техническая невозможность достижения заданных характеристик","Рассмотрение прекращения или изменения ТЗ"],
+["Выявлены существенные нарушения требований безопасности","Приостановка соответствующих работ до устранения"],
+["Отсутствует подтверждение существенной части понесённых затрат","Дополнительная финансовая проверка"],
+["Результат имеет стратегическое значение для организации или государства","Отдельная экспертная оценка стратегической ценности"],
+["Результат готов к внедрению, но не используется","Проверка причин отсутствия внедрения и ответственности"]];
+const DECISIONS=["Продолжить без изменения основных параметров","Продолжить с корректировкой ТЗ, сроков и бюджета","Завершить и передать результат на внедрение","Модернизировать или объединить с другой разработкой","Приостановить до устранения выявленных проблем","Прекратить выполнение НИОКР","Рассмотреть списание результатов в установленном порядке","Направить на дополнительную экспертизу"];
+const CATS=[[85,"Высокая","#2e7d32","Продолжить финансирование, внедрять, масштабировать"],
+[70,"Хорошая","#7cb342","Продолжить с устранением выявленных недостатков"],
+[50,"Удовлетворительная","#fbc02d","Пересмотреть ТЗ, бюджет, сроки и план внедрения"],
+[30,"Неудовлетворительная","#ef6c00","Приостановить, провести дополнительную экспертизу"],
+[0,"Критическая","#c62828","Рассмотреть прекращение работ и списание в установленном порядке"]];
+
+/* ================= СОСТОЯНИЕ ================= */
+function newRnd(name,shifr){return{name:name||"Новая НИОКР",shifr:shifr||"НИОКР-XX",podrazd:"",status:"Выполняется",
+cost:"",ready:"",goal:"",product:"",customer:"",executor:"",basis:"",contract:"",dates:"",head:"",
+fin:{plan:"",fact:"",prog:""},ctrl:["","","","","","",""],decision:"",just:"",measures:"",weak:"",strong:"",
+ans:Array(27).fill(""),conf:Array(27).fill(""),com:Array(27).fill(""),cat:""}}
+let state={list:[newRnd("Разработка А (пример)","НИОКР-01")],cur:0,feed:[],push:false};
+const LSKEY="niokr_audit_v1";
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({list:state.list,cur:state.cur}));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d&&d.list&&d.list.length){state.list=d.list;state.cur=d.cur||0;return true;}}catch(e){}return false;}
+
+/* ================= РАСЧЁТ ================= */
+function calc(r){
+  const bl=[0,1,2].map(b=>{let S=0,N=0;
+    for(let i=0;i<27;i++){if(QS[i][2]!==b)continue;const a=r.ans[i];if(a===""||a==="НП")continue;S+=Number(a);N++;}
+    const P=N?S/(5*N):null;return{S,N,P,B:P==null?0:W[b]*P,Wapp:P==null?0:W[b]};});
+  const Wsum=bl.reduce((s,x)=>s+x.Wapp,0),Bsum=bl.reduce((s,x)=>s+x.B,0);
+  const I=Wsum?100*Bsum/Wsum:null;
+  let cat=null,rec=null,col="#9e9e9e";
+  if(I!=null){for(const c of CATS){if(I>=c[0]){cat=c[1];rec=c[3];col=c[2];break;}}}
+  const nCtrl=r.ctrl.filter(x=>x==="Выявлено").length;
+  return{bl,I,cat,rec,col,Wsum,renorm:Wsum>0&&Wsum<100,nCtrl};
+}
+const cur=()=>state.list[state.cur];
+
+/* ================= УВЕДОМЛЕНИЯ ================= */
+function toast(type,title,msg){
+  const ic={ok:"✅",warn:"⚠️",err:"⛔",info:"ℹ️"}[type]||"ℹ️";
+  const d=document.createElement("div");d.className="toast "+type;
+  d.innerHTML='<span class="ic">'+ic+'</span><div><b>'+title+'</b><div>'+msg+'</div></div>';
+  document.getElementById("toasts").appendChild(d);
+  setTimeout(()=>{d.style.opacity="0";d.style.transition=".4s";setTimeout(()=>d.remove(),400);},6500);
+}
+function notify(type,title,msg){
+  state.feed.unshift({t:new Date().toLocaleTimeString("ru-RU"),type,title,msg});
+  if(state.feed.length>40)state.feed.pop();
+  document.getElementById("bellN").textContent=state.feed.length;
+  toast(type,title,msg);
+  if(state.push&&"Notification" in window&&Notification.permission==="granted"){
+    try{new Notification(title,{body:msg});}catch(e){}
+  }
+}
+function showModal(html,btns){
+  const box=document.getElementById("mbox");
+  box.innerHTML=html+'<div class="mbtns">'+btns.map((b,i)=>'<button class="btn '+(b.cls||"")+'" data-mb="'+i+'">'+b.label+'</button>').join("")+'</div>';
+  box.querySelectorAll("[data-mb]").forEach(el=>el.onclick=()=>{const b=btns[+el.dataset.mb];hideModal();if(b.fn)b.fn();});
+  document.getElementById("moverlay").classList.add("on");
+}
+function hideModal(){document.getElementById("moverlay").classList.remove("on");}
+document.getElementById("moverlay").addEventListener("click",e=>{if(e.target.id==="moverlay")hideModal();});
+
+/* ================= SVG-ГРАФИКИ ================= */
+function polar(cx,cy,r,a){const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);return[x,y];}
+function arc(cx,cy,r,a0,a1){const[p0,p1]=[polar(cx,cy,r,a0),polar(cx,cy,r,a1)];
+  return"M"+p0[0]+" "+p0[1]+" A"+r+" "+r+" 0 "+((a1-a0)>Math.PI?1:0)+" 1 "+p1[0]+" "+p1[1];}
+function gauge(I){
+  const cx=110,cy=105,r=86;let s='<svg viewBox="0 0 220 125" width="240">';
+  const zones=[[0,30,"#c62828"],[30,50,"#ef6c00"],[50,70,"#fbc02d"],[70,85,"#7cb342"],[85,100,"#2e7d32"]];
+  for(const z of zones){const a0=Math.PI+(z[0]/100)*Math.PI,a1=Math.PI+(z[1]/100)*Math.PI;
+    s+='<path d="'+arc(cx,cy,r,a0,a1)+'" stroke="'+z[2]+'" stroke-width="16" fill="none" stroke-linecap="butt"/>';}
+  if(I!=null){const a=Math.PI+(I/100)*MathPIfix();const[p]= [polar(cx,cy,r-24,a)];
+    s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#1f3864" stroke-width="4" stroke-linecap="round"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#1f3864"/>';
+    s+='<text x="'+cx+'" y="'+(cy-14)+'" text-anchor="middle" font-size="26" font-weight="800" fill="#1f3864">'+I.toFixed(1)+'</text>';}
+  else{s+='<text x="'+cx+'" y="'+(cy-14)+'" text-anchor="middle" font-size="15" font-weight="700" fill="#9e9e9e">Н/П</text>';}
+  s+='<text x="14" y="120" font-size="10" fill="#8c8c8c">0</text><text x="196" y="120" font-size="10" fill="#8c8c8c">100</text></svg>';
+  return s;
+}
+function MathPIfix(){return Math.PI;}
+function radar(bl){
+  const cx=110,cy=100,R=78;let s='<svg viewBox="0 0 220 200" width="250">';
+  const ang=[-Math.PI/2,Math.PI/2+Math.PI/6*5,Math.PI/2+Math.PI/6];
+  for(const g of[0.33,0.66,1]){s+='<polygon points="'+ang.map(a=>{const[x,y]=polar(cx,cy,R*g,a);return x+","+y;}).join(" ")+'" fill="none" stroke="#dfe6f2"/>';}
+  ang.forEach(a=>{const[x,y]=polar(cx,cy,R,a);s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#dfe6f2"/>';});
+  const pts=ang.map((a,i)=>{const v=bl[i].P==null?0:bl[i].P;const[x,y]=polar(cx,cy,R*v,a);return x+","+y;}).join(" ");
+  s+='<polygon points="'+pts+'" fill="rgba(46,116,181,.30)" stroke="#2e74b5" stroke-width="2"/>';
+  const lbl=["Актуальность","Эффективность","Целесообразность"];
+  ang.forEach((a,i)=>{const[x,y]=polar(cx,cy,R+16,a);s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="10.5" fill="#595959">'+lbl[i]+'</text>';});
+  return s+'</svg>';
+}
+function bars(bl){
+  let h='<div style="display:flex;flex-direction:column;gap:9px">';
+  bl.forEach((b,i)=>{const p=b.P==null?0:b.P*100;
+    h+='<div><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+BNAME[i]+'</span><b>'+(b.P==null?"Н/П":p.toFixed(1)+" %")+' · B='+b.B.toFixed(1)+'</b></div>'+
+    '<div class="bar"><i style="width:'+p+'%;background:'+(p>=70?"#2e7d32":p>=50?"#fbc02d":"#c62828")+'"></i></div></div>';});
+  return h+'</div>';
+}
+function donut(list){
+  const cnt={};list.forEach(r=>{const c=calc(r);const k=c.cat||"Не оценена";cnt[k]=(cnt[k]||0)+1;});
+  const cols={"Высокая":"#2e7d32","Хорошая":"#7cb342","Удовлетворительная":"#fbc02d","Неудовлетворительная":"#ef6c00","Критическая":"#c62828","Не оценена":"#9e9e9e"};
+  const total=list.length||1;let a0=-Math.PI/2,s='<svg viewBox="0 0 200 200" width="190">';
+  for(const k in cnt){const frac=cnt[k]/total,a1=a0+frac*2*Math.PI;
+    s+='<path d="'+arc(100,100,70,a0,a1)+'" stroke="'+(cols[k]||"#9e9e9e")+'" stroke-width="30" fill="none"/>';
+    a0=a1;}
+  s+='<text x="100" y="96" text-anchor="middle" font-size="26" font-weight="800" fill="#1f3864">'+total+'</text>'+
+     '<text x="100" y="114" text-anchor="middle" font-size="10" fill="#8c8c8c">НИОКР в портфеле</text></svg>';
+  let leg='<div style="font-size:12px">';for(const k in cnt){leg+='<div><span class="pill" style="background:'+(cols[k]||"#9e9e9e")+'">'+cnt[k]+'</span> '+k+'</div>';}
+  return s+leg+'</div>';
+}
+
+/* ================= РЕНДЕР: ДАШБОРД ================= */
+function renderDash(){
+  const r=cur(),c=calc(r);
+  const heat=QS.map((q,i)=>{const a=r.ans[i];const col=a===""?"#dfe6f2":SCORE_COLOR[a];
+    return'<div title="В'+(i+1)+': '+(a===""?"не оценено":ANS.find(x=>x[0]===a)[1])+'" style="background:'+col+'" onclick="goTab(\'check\')">'+(i+1)+'</div>';}).join("");
+  const ctrlList=r.ctrl.map((v,i)=>v==="Выявлено"?'<div class="fi err">⛔ '+CTRL[i][0]+' → '+CTRL[i][1]+'</div>':(v==="Требует проверки"?'<div class="fi warn">⚠️ '+CTRL[i][0]+' — требует проверки</div>':"")).join("")||'<div class="mini">Контрольные условия не выявлены.</div>';
+  document.getElementById("tab-dash").innerHTML=
+  '<div class="grid g4">'+
+   '<div class="card kpi"><span class="l">ИНТЕГРАЛЬНЫЙ ПОКАЗАТЕЛЬ I</span><span class="v">'+(c.I==null?"Н/П":c.I.toFixed(1))+' <span style="font-size:14px;color:#8c8c8c">/ 100</span></span><span class="l">'+(c.renorm?"применена ренормировка весов (есть блоки «Н/П» полностью)":"полная схема весов 30/35/35")+'</span></div>'+
+   '<div class="card kpi"><span class="l">ОЦЕНКА СОСТОЯНИЯ</span><span class="v" style="font-size:22px;color:'+(c.col||"#9e9e9e")+'">'+(c.cat||"Недостаточно данных")+'</span><span class="l">'+(c.rec||"ответьте на вопросы чек-листа")+'</span></div>'+
+   '<div class="card kpi"><span class="l">ОТВЕЧЕНО ВОПРОСОВ</span><span class="v">'+r.ans.filter(a=>a!=="").length+' <span style="font-size:14px;color:#8c8c8c">/ 27</span></span><span class="l">из них «Н/П»: '+r.ans.filter(a=>a==="НП").length+'</span></div>'+
+   '<div class="card kpi"><span class="l">КОНТРОЛЬНЫЕ УСЛОВИЯ</span><span class="v" style="color:'+(c.nCtrl?"#c62828":"#2e7d32")+'">'+c.nCtrl+'</span><span class="l">выявлено из 7 (влияют на решение независимо от баллов)</span></div>'+
+  '</div>'+
+  '<div class="grid g3" style="margin-top:14px">'+
+   '<div class="card"><h3>Интегральный балл</h3>'+gauge(c.I)+'</div>'+
+   '<div class="card"><h3>Профиль блоков</h3>'+radar(c.bl)+'</div>'+
+   '<div class="card"><h3>Выполнение блоков</h3>'+bars(c.bl)+
+     '<div class="note" style="margin-top:10px">I = 100·Σ(Wⱼ·Pⱼ) / ΣWⱼ по применимым блокам; Pⱼ = Sⱼ/(5·Nⱼ). «Н/П» исключает вопрос из числителя и знаменателя.</div></div>'+
+  '</div>'+
+  '<div class="grid g2" style="margin-top:14px">'+
+   '<div class="card"><h3>Тепловая карта ответов (вопросы 1–27)</h3><div class="heat">'+heat+'</div>'+
+   '<div class="mini" style="margin-top:8px">5 — тёмно-зелёный · 4 — зелёный · 3 — жёлтый · 1 — оранжевый · 0 — красный · Н/П — серый. Клик — переход к чек-листу.</div></div>'+
+   '<div class="card"><h3>Контрольные условия и сигнал комиссии</h3><div class="feed">'+ctrlList+'</div>'+
+   (c.nCtrl?'<div class="note">Балльная оценка не отменяет действие контрольных условий: итоговое решение принимается с обязательным учётом последствий.</div>':'')+'</div>'+
+  '</div>'+
+  '<div class="card" style="margin-top:14px"><h3>Лента уведомлений</h3><div class="feed">'+
+   (state.feed.map(f=>'<div class="fi '+f.type+'"><b>'+f.t+'</b> · '+f.title+' — '+f.msg+'</div>').join("")||'<div class="mini">Пока пусто.</div>')+'</div></div>';
+}
+
+/* ================= РЕНДЕР: ЧЕК-ЛИСТ ================= */
+function renderCheck(){
+  const r=cur();let h='<div class="note">Заполните ответ и документальное подтверждение по каждому вопросу. Баллы 4–5 без подтверждения («Нет») блокируются предупреждением. «Н/П» требует обоснования в комментарии и исключается из расчёта блока.</div>';
+  for(let b=0;b<3;b++){
+    h+='<div class="blk-h">БЛОК '+BNAME[b].split(". ")[0]+'. '+BNAME[b].split(". ")[1].toUpperCase()+'<span style="font-weight:400;font-size:12px">· цель: '+BGOAL[b]+'</span><span class="w">вес '+W[b]+' %</span></div>';
+    const c=calc(r).bl[b];
+    h+='<div class="blk-sum"><span>Sⱼ (сумма баллов): <b>'+c.S+'</b></span><span>Nⱼ (применимо): <b>'+c.N+'</b> / 9</span><span>Pⱼ (выполнение): <b>'+(c.P==null?"Н/П":(c.P*100).toFixed(1)+" %")+'</b></span><span>Bⱼ (взвешенный): <b>'+c.B.toFixed(2)+' / '+W[b]+'</b></span></div>';
+    for(let i=0;i<27;i++){if(QS[i][2]!==b)continue;
+      const a=r.ans[i],sc=a===""||a==="НП"?null:Number(a);
+      h+='<div class="qrow"><div class="qh"><div class="num">'+(i+1)+'</div><div class="qt"><b>'+QS[i][0]+'</b><span class="est">'+QS[i][1]+'</span></div>'+
+      '<span class="score-chip" style="background:'+(a===""?"#dfe6f2;color:#8c8c8c":SCORE_COLOR[a])+'">'+(sc==null?(a==="НП"?"Н/П":"—"):sc)+'</span></div>'+
+      '<div class="qb"><label>Ответ: <select data-a="'+i+'"><option value="">— не выбран —</option>'+ANS.map(o=>'<option value="'+o[0]+'"'+(a===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></label>'+
+      '<label>Подтверждение: <select data-c="'+i+'"><option value="">—</option><option value="Да"'+(r.conf[i]==="Да"?" selected":"")+'>Да</option><option value="Нет"'+(r.conf[i]==="Нет"?" selected":"")+'>Нет</option></select></label>'+
+      '<input type="text" data-m="'+i+'" placeholder="Комментарий / документы / обоснование «Н/П»" value="'+(r.com[i]||"").replace(/"/g,"&quot;")+'" style="flex:1;min-width:240px">'+
+      '</div></div>';}
+  }
+  document.getElementById("tab-check").innerHTML=h;
+  document.querySelectorAll("#tab-check select[data-a]").forEach(el=>el.onchange=e=>setAns(+e.target.dataset.a,e.target.value));
+  document.querySelectorAll("#tab-check select[data-c]").forEach(el=>el.onchange=e=>setConf(+e.target.dataset.c,e.target.value));
+  document.querySelectorAll("#tab-check input[data-m]").forEach(el=>el.onchange=e=>{cur().com[+e.target.dataset.m]=e.target.value;save();});
+}
+function setAns(i,v){
+  const r=cur();r.ans[i]=v;
+  if(v==="НП"&&!(r.com[i]||"").trim()){
+    showModal('<h2>Обоснование ответа «Н/П» — вопрос '+(i+1)+'</h2><p>Ответ «Н/П» исключает вопрос из числителя и знаменателя расчёта блока. Укажите причину неприменимости (обязательно):</p><textarea id="npTxt" rows="3" style="width:100%"></textarea>',
+    [{label:"Отмена",cls:"gray",fn:()=>{r.ans[i]="";renderCheck();renderDash();}},{label:"Сохранить обоснование",fn:()=>{r.com[i]=document.getElementById("npTxt").value||"Н/П без пояснения";notify("warn","Вопрос "+(i+1)+" исключён из расчёта","«Н/П»: "+r.com[i]);afterChange();}}]);
+  }else if((v==="4"||v==="5")&&r.conf[i]==="Нет"){
+    ruleWarn(i);
+  }else if(v!==""){notify("ok","Вопрос "+(i+1)+" оценён","Ответ: "+ANS.find(x=>x[0]===v)[1]+" → "+(v==="НП"?"исключён":v+" балл(ов)"));afterChange();}
+  else afterChange();
+}
+function setConf(i,v){
+  const r=cur();r.conf[i]=v;
+  if((r.ans[i]==="4"||r.ans[i]==="5")&&v==="Нет")ruleWarn(i);
+  else{save();renderCheck();renderDash();}
+}
+function ruleWarn(i){
+  showModal('<h2>⚠️ Нарушение правила документального подтверждения</h2><p>По вопросу <b>'+(i+1)+'</b> выставлен высокий балл (<b>'+(cur().ans[i]==="4"?"4":"5")+'</b>) при отсутствии документального подтверждения. Согласно методике, баллы 4–5 не могут присваиваться только на основании устных пояснений исполнителя.</p><p>Действия: приложите документ и выберите «Да», либо снизьте балл.</p>',
+  [{label:"Снизить балл до 3",cls:"warn",fn:()=>{cur().ans[i]="3";notify("warn","Балл снижен","Вопрос "+(i+1)+": 5/4 → 3 (нет подтверждения)");afterChange();}},
+   {label:"Оставить (риск комиссии)",cls:"gray",fn:()=>{notify("err","Зафиксировано нарушение правила","Вопрос "+(i+1)+": высокий балл без документа — комиссия обязана проверить");afterChange();}}]);
+}
+function afterChange(){
+  const r=cur(),c=calc(r);
+  if(c.cat&&c.cat!==r.cat){notify("info","Категория изменилась: "+c.cat,"I = "+(c.I==null?"Н/П":c.I.toFixed(1))+" · "+c.rec);r.cat=c.cat;}
+  save();renderCheck();renderDash();renderPort();renderSel();
+}
+
+/* ================= РЕНДЕР: ПАСПОРТ ================= */
+function renderPass(){
+  const r=cur();
+  const f=(k,ph)=>'<input type="text" data-p="'+k+'" value="'+(r[k]||"").replace(/"/g,"&quot;")+'" placeholder="'+ph+'" style="width:100%">';
+  let h='<div class="grid g2"><div class="card"><h3>1. Общие сведения</h3>'+
+  '<div class="field"><label>Наименование НИОКР</label>'+f("name","полное наименование")+'</div>'+
+  '<div class="field"><label>Шифр</label>'+f("shifr","НИОКР-01")+'</div>'+
+  '<div class="field"><label>Заказчик</label>'+f("customer","государственный / корпоративный")+'</div>'+
+  '<div class="field"><label>Исполнитель</label>'+f("executor","головной, соисполнители")+'</div>'+
+  '<div class="field"><label>Подразделение</label>'+f("podrazd","наименование, руководитель")+'</div>'+
+  '<div class="field"><label>Основание выполнения</label>'+f("basis","ГОЗ, госконтракт, инициативная, внутренний заказ")+'</div>'+
+  '<div class="field"><label>Договор (№, дата, стоимость)</label>'+f("contract","")+'</div>'+
+  '<div class="field"><label>Сроки (начало — окончание)</label>'+f("dates","")+'</div>'+
+  '<div class="field"><label>Статус</label><select data-p="status">'+["Выполняется","Завершена","Приостановлена","Прекращена"].map(s=>'<option'+(r.status===s?" selected":"")+'>'+s+'</option>').join("")+'</select></div>'+
+  '<div class="field"><label>Руководитель НИОКР</label>'+f("head","должность, ФИО")+'</div>'+
+  '<div class="field"><label>Краткая цель</label>'+f("goal","какую проблему решает")+'</div>'+
+  '<div class="field"><label>Ключевой результат</label>'+f("product","образец / ПО / технология / документация")+'</div>'+
+  '</div><div class="card"><h3>2. Стоимость и финансирование, млн ₽</h3>'+
+  finRow("plan","Утверждённая (первоначальная) стоимость",r)+finRow("fact","Фактические затраты",r)+finRow("prog","Прогноз затрат до завершения",r)+
+  '<div class="field"><label>Прогнозная итоговая стоимость</label><input type="text" readonly value="'+progTotal(r)+'" style="width:100%;background:#f2f2f2"></div>'+
+  '<div class="field"><label>Отклонение от утверждённой</label><input type="text" readonly value="'+devPct(r)+'" style="width:100%;background:#f2f2f2"></div>'+
+  '<h3 style="margin-top:14px">3. Контрольные условия (7)</h3>'+
+  CTRL.map((c,i)=>'<div class="field"><label style="font-weight:400">'+(i+1)+'. '+c[0]+'</label><select data-k="'+i+'"><option value="">—</option><option'+(r.ctrl[i]==="Выявлено"?" selected":"")+'>Выявлено</option><option'+(r.ctrl[i]==="Не выявлено"?" selected":"")+'>Не выявлено</option><option'+(r.ctrl[i]==="Требует проверки"?" selected":"")+'>Требует проверки</option></select></div>').join("")+
+  '<h3 style="margin-top:14px">4. Решение комиссии</h3>'+
+  '<div class="field"><label>Решение</label><select data-p="decision"><option value="">— не выбрано —</option>'+DECISIONS.map(d=>'<option'+(r.decision===d?" selected":"")+'>'+d+'</option>').join("")+'</select></div>'+
+  '<div class="field" style="align-items:start"><label>Обоснование</label><textarea data-p="just" rows="2" style="width:100%">'+(r.just||"")+'</textarea></div>'+
+  '<div class="field" style="align-items:start"><label>Мероприятия (содержание / ответственный / срок)</label><textarea data-p="measures" rows="2" style="width:100%">'+(r.measures||"")+'</textarea></div>'+
+  '</div></div>';
+  document.getElementById("tab-pass").innerHTML=h;
+  document.querySelectorAll("#tab-pass [data-p]").forEach(el=>el.onchange=e=>{const k=e.target.dataset.p;
+    if(k.indexOf("fin.")===0){cur().fin[k.slice(4)]=e.target.value;}else{cur()[k]=e.target.value;}
+    save();renderSel();renderDash();renderPort();renderPass();});
+  document.querySelectorAll("#tab-pass [data-k]").forEach(el=>el.onchange=e=>{const i=+e.target.dataset.k;cur().ctrl[i]=e.target.value;
+    if(e.target.value==="Выявлено")notify("err","Контрольное условие выявлено","№"+(i+1)+": "+CTRL[i][0]+" → "+CTRL[i][1]);
+    save();renderDash();});
+}
+function finRow(k,lbl,r){return'<div class="field"><label>'+lbl+'</label><input type="number" step="0.01" data-p="fin.'+k+'" value="'+(r.fin[k]||"")+'" style="width:100%"></div>';}
+function progTotal(r){const a=parseFloat(r.fin.fact),b=parseFloat(r.fin.prog);return(isFinite(a)&&isFinite(b))?(a+b).toFixed(2):"—";}
+function devPct(r){const p=parseFloat(r.fin.plan),t=parseFloat(progTotal(r));return(isFinite(p)&&p&&isFinite(t))?((t/p-1)*100).toFixed(1)+" %":"—";}
+
+/* ================= РЕНДЕР: ПОРТФЕЛЬ ================= */
+function renderPort(){
+  let rows=state.list.map((r,i)=>{const c=calc(r);
+    return'<tr><td>'+(i+1)+'</td><td><b>'+r.shifr+'</b><br><span class="mini">'+r.name+'</span></td><td>'+r.status+'</td>'+
+    '<td>'+(r.fin.plan||"—")+'</td><td>'+(r.ready||"—")+'%</td>'+
+    '<td style="text-align:center;font-weight:800;color:'+c.col+'">'+(c.I==null?"Н/П":c.I.toFixed(1))+'</td>'+
+    '<td><span class="pill" style="background:'+c.col+'">'+(c.cat||"Не оценена")+'</span></td>'+
+    '<td><select data-d="'+i+'" style="width:100%"><option value="">—</option>'+DECISIONS.map(d=>'<option'+(r.decision===d?" selected":"")+'>'+d+'</option>').join("")+'</select></td>'+
+    '<td style="text-align:center"><button class="btn sm gray" data-open="'+i+'">открыть</button> <button class="btn sm warn" data-del="'+i+'">✕</button></td></tr>';}).join("");
+  const avg=state.list.map(r=>calc(r).I).filter(x=>x!=null);
+  document.getElementById("tab-port").innerHTML=
+  '<div class="grid g3"><div class="card"><h3>Распределение по категориям</h3>'+donut(state.list)+'</div>'+
+  '<div class="card kpi"><span class="l">НИОКР в портфеле</span><span class="v">'+state.list.length+'</span><span class="l">выполняется: '+state.list.filter(r=>r.status==="Выполняется").length+' · приостановлено: '+state.list.filter(r=>r.status==="Приостановлена").length+'</span></div>'+
+  '<div class="card kpi"><span class="l">СРЕДНИЙ ИНТЕГРАЛЬНЫЙ БАЛЛ</span><span class="v">'+(avg.length?(avg.reduce((a,b)=>a+b,0)/avg.length).toFixed(1):"—")+'</span><span class="l">кандидаты на прекращение (I&lt;50): '+state.list.filter(r=>{const c=calc(r);return c.I!=null&&c.I<50;}).length+'</span></div></div>'+
+  '<div class="card" style="margin-top:14px"><h3>Сводная матрица портфеля</h3><table><tr><th>№</th><th>Шифр / наименование</th><th>Статус</th><th>Стоимость, млн ₽</th><th>Готовность</th><th>I</th><th>Категория</th><th>Управленческое решение</th><th></th></tr>'+rows+'</table>'+
+  '<div style="margin-top:10px" class="noprint"><button class="btn" id="pAdd">＋ Добавить НИОКР</button> <button class="btn gray" id="pCsv">Экспорт CSV</button></div></div>';
+  document.querySelectorAll("#tab-port select[data-d]").forEach(el=>el.onchange=e=>{state.list[+e.target.dataset.d].decision=e.target.value;save();notify("ok","Решение зафиксировано",state.list[+e.target.dataset.d].shifr+": "+e.target.value);});
+  document.querySelectorAll("#tab-port [data-open]").forEach(el=>el.onclick=e=>{state.cur=+e.target.dataset.open;save();renderSel();goTab("dash");});
+  document.querySelectorAll("#tab-port [data-del]").forEach(el=>el.onclick=e=>{const i=+e.target.dataset.del;
+    showModal('<h2>Удалить НИОКР из портфеля?</h2><p><b>'+state.list[i].shifr+' — '+state.list[i].name+'</b> будет удалена вместе с ответами чек-листа.</p>',
+    [{label:"Отмена",cls:"gray"},{label:"Удалить",cls:"warn",fn:()=>{state.list.splice(i,1);if(state.cur>=state.list.length)state.cur=0;if(!state.list.length)state.list.push(newRnd());save();renderAll();notify("warn","НИОКР удалена из портфеля","");}}]);});
+  const pa=document.getElementById("pAdd");if(pa)pa.onclick=addRnd;
+  const pc=document.getElementById("pCsv");if(pc)pc.onclick=exportCsv;
+}
+function exportCsv(){
+  let csv="Шифр;Наименование;Статус;Стоимость;Готовность;I;Категория;Решение\n";
+  state.list.forEach(r=>{const c=calc(r);csv+=[r.shifr,r.name,r.status,r.fin.plan||"",r.ready||"",c.I==null?"":c.I.toFixed(1),c.cat||"",r.decision||""].join(";")+"\n";});
+  download("portfolio_niokr.csv",csv,"text/csv");notify("ok","CSV экспортирован","portfolio_niokr.csv");
+}
+
+/* ================= РЕНДЕР: СПРАВОЧНИК ================= */
+function renderRef(){
+  document.getElementById("tab-ref").innerHTML=
+  '<div class="grid g2"><div class="card"><h3>Шкала ответов</h3><table><tr><th>Ответ</th><th>Балл</th><th>Интерпретация</th></tr>'+
+  '<tr><td>Да, полностью</td><td>5</td><td>Требование выполнено, подтверждено документами</td></tr>'+
+  '<tr><td>В основном да</td><td>4</td><td>Незначительные недостатки</td></tr>'+
+  '<tr><td>Частично</td><td>3</td><td>Выполнено не в полном объёме</td></tr>'+
+  '<tr><td>Скорее нет</td><td>1</td><td>Существенные недостатки</td></tr>'+
+  '<tr><td>Нет</td><td>0</td><td>Не выполнено либо нет подтверждения</td></tr>'+
+  '<tr><td>Н/П</td><td>—</td><td>Исключается из расчёта с обоснованием</td></tr></table>'+
+  '<div class="note">Значение «2 балла» намеренно не используется — чтобы исключить «усреднённые» оценки без содержательной позиции аудитора. Баллы 4–5 — только при документальном подтверждении.</div></div>'+
+  '<div class="card"><h3>Математическая модель (v2.0, выверена)</h3><div class="formula">Sⱼ = Σ баллов применимых вопросов блока j (0…45)\nNⱼ = число применимых вопросов блока j (0…9)\nPⱼ = Sⱼ / (5·Nⱼ)            — выполнение блока, 0…1\nBⱼ = W · P                — взвешенный балл (W = 30/35/35)\nI  = 100 · Σ Bⱼ(прим.) / Σ Wⱼ(прим.)   — 0…100\n\nБлок целиком «Н/П» → его вес исключается (ренормировка).\nВсе 27 «Н/П» → «Недостаточно данных».</div>'+
+  '<h3 style="margin-top:12px">Итоговая шкала</h3><table><tr><th>I</th><th>Оценка</th><th>Рекомендуемое решение</th></tr>'+
+  CATS.map(c=>'<tr><td>'+c[0]+'–'+(c===CATS[0]?100:CATS[CATS.indexOf(c)-1][0]-1)+'</td><td><span class="pill" style="background:'+c[2]+'">'+c[1]+'</span></td><td>'+c[3]+'</td></tr>').join("")+'</table></div>'+
+  '<div class="card"><h3>Контрольные условия (7)</h3><table><tr><th>№</th><th>Условие</th><th>Последствие</th></tr>'+CTRL.map((c,i)=>'<tr><td>'+(i+1)+'</td><td>'+c[0]+'</td><td>'+c[1]+'</td></tr>').join("")+'</table>'+
+  '<div class="note">Интегральный показатель — инструмент поддержки решения, а не самостоятельное основание для прекращения НИОКР или списания активов.</div></div>'+
+  '<div class="card"><h3>Глоссарий и внешние методики</h3><table><tr><th>Термин</th><th>Значение</th></tr>'+
+  '<tr><td>TRL / УГТ</td><td>Уровень технологической готовности (1–9): от идеи до массового производства; применяется как независимая ось оценки готовности результата</td></tr>'+
+  '<tr><td>NPV / IRR</td><td>Чистая приведённая стоимость / внутренняя норма доходности — для экономической оценки внедрения (блок III, вопрос 21, 25★)</td></tr>'+
+  '<tr><td>Weighted scoring model</td><td>Взвешенная балльная модель: критерии → веса → шкала → интегральный балл; базовый принцип данной методики</td></tr>'+
+  '<tr><td>РИД</td><td>Результаты интеллектуальной деятельности: патенты, свидетельства, ноу-хау (вопросы 15, 26★)</td></tr>'+
+  '<tr><td>Ренормировка</td><td>Перераспределение веса полностью неприменимого блока между оставшимися: I = 100·ΣBⱼ/ΣWⱼ</td></tr></table>'+
+  '<h3 style="margin-top:12px">Источники (этап 1)</h3><div class="src mini">'+
+  '· Оценка уровней готовности (TRL/УГТ) как инструмент управления технологическими проектами — cyberleninka.ru/article/n/otsenka-urovney-gotovnosti-kak-instrument-upravleniya-tehnologicheskimi-proektami…<br>'+
+  '· Как провести оценку уровня готовности технологии — rtmtech.ru/articles/ocenka-trl/<br>'+
+  '· Weighted scoring model: guide — tempo.io/blog/weighted-scoring-model; larksuite.com/library/…/scoring-model-in-project-management<br>'+
+  '· Внутренняя методика: чек-лист аудита НИОКР v2.0 (27 вопросов), детальные критерии блока II.</div></div>'+
+  '<div class="card"><h3>Уведомления и сохранение</h3><p class="mini">Кнопка «Разрешить push» запрашивает системные уведомления браузера (если среда их поддерживает); дублирование — всплывающими toast-уведомлениями и лентой на дашборде. Данные автоматически сохраняются в localStorage браузера; «Экспорт JSON» создаёт резервную копию, «Импорт» восстанавливает её.</p></div></div>';
+}
+
+/* ================= РЕНДЕР: АКТ ================= */
+function renderRep(){
+  const r=cur(),c=calc(r);
+  const html='<div class="card"><h3>АКТ ОЦЕНКИ НИОКР — форма итогового заключения комиссии</h3>'+
+  '<p><b>1. Общие сведения.</b> Наименование: '+r.name+' · Шифр: '+r.shifr+' · Исполнитель: '+(r.executor||"__")+' · Заказчик: '+(r.customer||"__")+' · Сроки: '+(r.dates||"__")+' · Утверждённая стоимость: '+(r.fin.plan||"__")+' млн ₽ · Фактические затраты: '+(r.fin.fact||"__")+' млн ₽ · Состояние: '+r.status+'.</p>'+
+  '<p><b>2. Результаты интегральной оценки.</b></p><table><tr><th>Показатель</th><th>Значение</th></tr>'+
+  '<tr><td>Актуальность (B₁)</td><td>'+c.bl[0].B.toFixed(2)+' / 30 (P₁='+(c.bl[0].P==null?"Н/П":(c.bl[0].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td>Эффективность (B₂)</td><td>'+c.bl[1].B.toFixed(2)+' / 35 (P₂='+(c.bl[1].P==null?"Н/П":(c.bl[1].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td>Целесообразность (B₃)</td><td>'+c.bl[2].B.toFixed(2)+' / 35 (P₃='+(c.bl[2].P==null?"Н/П":(c.bl[2].P*100).toFixed(1)+"%")+')</td></tr>'+
+  '<tr><td><b>Интегральный показатель I</b></td><td><b>'+(c.I==null?"Н/П":c.I.toFixed(1))+' / 100</b> — оценка «'+(c.cat||"Недостаточно данных")+'»'+(c.renorm?" (применена ренормировка весов)":"")+'</td></tr></table>'+
+  '<p><b>3. Выявленные недостатки:</b> '+(r.weak||"____________")+'<br><b>4. Сильные стороны:</b> '+(r.strong||"____________")+'</p>'+
+  '<p><b>5. Контрольные условия:</b> выявлено '+c.nCtrl+' из 7.'+(c.nCtrl?" Перечень: "+r.ctrl.map((v,i)=>v==="Выявлено"?CTRL[i][0]:null).filter(Boolean).join("; "):"")+'</p>'+
+  '<p><b>6. Решение комиссии:</b> '+(r.decision||"____________")+'<br><b>Обоснование:</b> '+(r.just||"____________")+'<br><b>Мероприятия:</b> '+(r.measures||"____________")+'</p>'+
+  '<p><b>7. Выводная часть.</b> По результатам аудита установлено: НИОКР «'+r.name+'» получает интегральную оценку '+(c.I==null?"Н/П":c.I.toFixed(1))+' из 100 ('+(c.cat||"данных недостаточно")+'). Рекомендация модели: '+(c.rec||"—")+'. Комиссия подтверждает либо изменяет решение с учётом контрольных условий и содержательного анализа.</p>'+
+  '<p class="mini">Председатель комиссии: ____________ Члены комиссии: ____________ Дата: ____________</p>'+
+  '<button class="btn noprint" onclick="printRep()">🖨 Печать / PDF</button> <button class="btn gray noprint" onclick="copyRep()">📋 Копировать текст</button></div>';
+  document.getElementById("tab-rep").innerHTML=html;
+  document.getElementById("printarea").innerHTML=html;
+}
+function printRep(){renderRep();window.print();}
+function copyRep(){
+  const t=document.getElementById("printarea").innerText;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>notify("ok","Текст акта скопирован","вставьте в Word"));}
+  else{showModal('<h2>Текст акта</h2><textarea rows="14" style="width:100%">'+t.replace(/</g,"&lt;")+'</textarea>',[{label:"Закрыть",cls:"gray"}]);}
+}
+
+/* ================= СЕРВИС ================= */
+function renderSel(){
+  const s=document.getElementById("selRnd");
+  s.innerHTML=state.list.map((r,i)=>'<option value="'+i+'"'+(i===state.cur?" selected":"")+'>'+r.shifr+' — '+r.name+'</option>').join("");
+}
+function renderAll(){renderSel();renderDash();renderCheck();renderPass();renderPort();renderRef();renderRep();}
+function goTab(t){document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("on",s.id==="tab-"+t));
+  if(t==="dash")renderDash();else if(t==="check")renderCheck();else if(t==="pass")renderPass();
+  else if(t==="port")renderPort();else if(t==="rep")renderRep();}
+document.getElementById("tabs").addEventListener("click",e=>{if(e.target.dataset.t)goTab(e.target.dataset.t);});
+document.getElementById("selRnd").onchange=e=>{state.cur=+e.target.value;save();renderAll();};
+document.getElementById("btnAdd").onclick=addRnd;
+function addRnd(){
+  showModal('<h2>Добавить НИОКР в портфель</h2><div class="field"><label>Наименование</label><input type="text" id="nName" style="width:100%"></div><div class="field"><label>Шифр</label><input type="text" id="nShifr" style="width:100%"></div>',
+  [{label:"Отмена",cls:"gray"},{label:"Добавить",fn:()=>{const r=newRnd(document.getElementById("nName").value,document.getElementById("nShifr").value);state.list.push(r);state.cur=state.list.length-1;save();renderAll();notify("ok","НИОКР добавлена",r.shifr+" — "+r.name);}}]);
+}
+document.getElementById("btnBell").onclick=()=>{
+  showModal('<h2>🔔 Лента уведомлений</h2><div class="feed">'+(state.feed.map(f=>'<div class="fi '+f.type+'"><b>'+f.t+'</b> · '+f.title+' — '+f.msg+'</div>').join("")||'<div class="mini">Пока пусто.</div>')+'</div>',[{label:"Закрыть",cls:"gray"}]);};
+document.getElementById("btnPush").onclick=()=>{
+  if(!("Notification" in window)){notify("info","Push недоступен в этой среде","используются встроенные toast-уведомления и лента");return;}
+  Notification.requestPermission().then(p=>{if(p==="granted"){state.push=true;notify("ok","Push-уведомления включены","ключевые события будут дублироваться системными уведомлениями");}else notify("warn","Разрешение не выдано","остаются встроенные уведомления");});};
+document.getElementById("btnSave").onclick=()=>{save();notify("ok","Сохранено","данные записаны в localStorage браузера");};
+function download(name,content,mime){
+  const b=new Blob([content],{type:mime||"application/json"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById("btnExp").onclick=()=>{download("НИОКР_аудит_v1.json",JSON.stringify({list:state.list,cur:state.cur},null,1));notify("ok","Экспорт выполнен","НИОКР_аудит_v1.json");};
+document.getElementById("btnImp").onclick=()=>document.getElementById("impFile").click();
+document.getElementById("impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.list){state.list=d.list;state.cur=d.cur||0;save();renderAll();notify("ok","Импорт выполнен","загружено НИОКР: "+state.list.length);}}catch(err){notify("err","Ошибка импорта","файл не распознан");}};rd.readAsText(f);};
+
+/* ================= СТАРТ ================= */
+const had=load();
+renderAll();
+if(!had){
+  showModal('<h2>Добро пожаловать в модель аудита НИОКР (v1.0)</h2><p>Интерактивная реализация финального чек-листа аудита НИОКР: <b>27 вопросов</b> в трёх блоках (Актуальность 30 % · Эффективность 35 % · Целесообразность 35 %), автоматический расчёт интегрального показателя <b>I (0–100)</b> с обработкой ответов «Н/П» и ренормировкой весов.</p><p><b>Вкладки:</b> Дашборд (диаграммы и категория) · Чек-лист (ответы, подтверждения, комментарии) · Паспорт (сведения, финансы, контрольные условия, решение) · Портфель (матрица нескольких НИОКР) · Справочник (методика, шкалы, источники) · Акт оценки (печать/PDF, копирование в Word).</p><p><b>Уведомления:</b> toast-всплывашки, лента на дашборде и системные push (кнопка «Разрешить push»).</p>',
+  [{label:"Начать работу"}]);
+}
+</script>
+</body>
+</html>
