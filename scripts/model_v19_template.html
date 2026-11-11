@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ЭО-НИОКР — экспертная оценка актуальности и целесообразности НИОКР, v19.0</title>
+<style>
+:root{
+  --navy:#1f3864; --navy2:#2e5395; --accent:#2e74b5; --sky:#9db7e0;
+  --bg:#f4f6fa; --card:#ffffff; --ink:#262626; --gray:#595959; --lgray:#8c8c8c;
+  --red:#c62828; --orange:#ef6c00; --yellow:#fbc02d; --green:#2e7d32; --lgreen:#7cb342; --np:#9e9e9e;
+  --input:#fff2cc; --shadow:0 2px 10px rgba(31,56,100,.10);
+}
+body.dark{
+  --bg:#171c26; --card:#202836; --ink:#e8ecf4; --gray:#b6c0d0; --lgray:#8b94a5;
+  --navy:#9db7e0; --navy2:#9db7e0; --shadow:0 2px 12px rgba(0,0,0,.45); --input:#3a4356;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 "Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;background:#1f3864;color:#fff;padding:10px 18px;flex-wrap:wrap}
+.topbar .logo{width:34px;height:34px;border-radius:8px;background:#2e74b5;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.topbar h1{font-size:16px;margin:0;font-weight:600}
+.topbar .ver{background:#2e74b5;border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700}
+.topbar .spacer{flex:1}
+.btn{border:0;border-radius:8px;padding:8px 14px;font:600 12.5px "Segoe UI",sans-serif;cursor:pointer;background:#2e74b5;color:#fff;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;color:#fff;border:1px solid #9db7e0}
+.btn.warn{background:#ef6c00}
+.btn.gray{background:#e8ebf2;color:#1f3864}
+body.dark .btn.gray{background:#39435a;color:#e8ecf4}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+select,input[type=text],input[type=number],input[type=date],textarea{font:13px "Segoe UI",sans-serif;border:1px solid #c6cede;border-radius:7px;padding:6px 8px;background:#fff;color:#262626}
+body.dark select,body.dark input[type=text],body.dark input[type=number],body.dark input[type=date],body.dark textarea{background:#2b3444;color:#e8ecf4;border-color:#46536b}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--sky)}
+.tabs{display:flex;gap:4px;background:#e6ebf4;padding:8px 14px 0;flex-wrap:wrap;position:sticky;top:54px;z-index:30}
+body.dark .tabs{background:#1c2330}
+.tabs button{border:0;border-radius:9px 9px 0 0;padding:9px 16px;font:600 13px "Segoe UI",sans-serif;cursor:pointer;background:transparent;color:var(--gray)}
+.tabs button.on{background:var(--bg);color:var(--navy);box-shadow:0 -2px 6px rgba(31,56,100,.08)}
+main{padding:16px 18px 60px;max-width:1420px;margin:0 auto}
+section.tab{display:none}
+section.tab.on{display:block}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px}
+.card h3{margin:0 0 10px;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-size:30px;font-weight:800;color:var(--navy)}
+.kpi .l{font-size:11.5px;color:var(--gray)}
+.pill{display:inline-block;border-radius:10px;padding:2px 10px;font-size:11.5px;font-weight:700;color:#fff}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border:1px solid #d7dce8;padding:6px 8px;text-align:left;vertical-align:top}
+body.dark th,body.dark td{border-color:#3b4557}
+th{background:#eef2f8;color:#1f3864;font-weight:700}
+body.dark th{background:#2a3446;color:#cfe0f5}
+td.num,th.num{text-align:center;white-space:nowrap}
+.sb{display:inline-flex;gap:3px}
+.sb button{min-width:30px;border:1px solid #c6cede;background:#fff;border-radius:7px;padding:5px 7px;font:600 12px "Segoe UI";cursor:pointer;color:#262626}
+body.dark .sb button{background:#2b3444;color:#e8ecf4;border-color:#46536b}
+.sb button.on{background:#2e74b5;color:#fff;border-color:#2e74b5}
+.sb button.no.on{background:#9e9e9e;border-color:#9e9e9e}
+.sb button.k1.on,.sbk button.k1.on{background:#c62828;border-color:#c62828;color:#fff}
+.sb button.k2.on{background:#ef6c00;border-color:#ef6c00;color:#fff}
+.sb button.k3.on{background:#fbc02d;border-color:#fbc02d;color:#333}
+.sb button.k4.on{background:#7cb342;border-color:#7cb342;color:#fff}
+.sb button.k5.on{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.heat{display:inline-block;width:26px;height:18px;border-radius:4px;text-align:center;font:700 11px/18px "Segoe UI";color:#fff}
+.mtx td{ text-align:center;font-weight:600;font-size:12px }
+.mtx td.act{outline:3px solid #2e74b5;background:#fff2cc !important;color:#1f3864}
+body.dark .mtx td.act{background:#4a3f1d !important;color:#ffe9a8}
+.note{font-size:12px;color:var(--gray)}
+.warnbox{border-left:4px solid #ef6c00;background:#fff4e5;padding:8px 10px;border-radius:6px;font-size:12.5px;margin:8px 0}
+body.dark .warnbox{background:#3d3122}
+.stopbox{border-left:4px solid #c62828;background:#fdecea;padding:8px 10px;border-radius:6px;font-size:12.5px;margin:8px 0}
+body.dark .stopbox{background:#3b2426}
+.okbox{border-left:4px solid #2e7d32;background:#eaf4ea;padding:8px 10px;border-radius:6px;font-size:12.5px;margin:8px 0}
+body.dark .okbox{background:#24352a}
+details.anch{margin:2px 0}
+details.anch summary{cursor:pointer;font-size:11.5px;color:var(--accent)}
+details.anch table{margin-top:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button{border:1px solid #c6cede;border-radius:14px;padding:5px 12px;background:var(--card);cursor:pointer;font:600 12px "Segoe UI";color:var(--ink)}
+.chips button.on{background:#2e74b5;color:#fff;border-color:#2e74b5}
+.toastwrap{position:fixed;right:14px;bottom:14px;z-index:90;display:flex;flex-direction:column;gap:8px}
+.toast{background:#1f3864;color:#fff;border-radius:9px;padding:10px 14px;font-size:12.5px;box-shadow:0 4px 14px rgba(0,0,0,.3);max-width:380px;animation:tin .25s}
+@keyframes tin{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.modal{position:fixed;inset:0;background:rgba(15,22,40,.55);z-index:80;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:40px 16px}
+.modal.on{display:flex}
+.modal .box{background:var(--card);border-radius:12px;max-width:760px;width:100%;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 10px;font-size:16px;color:var(--navy)}
+.zakl p{margin:6px 0}
+.sig{margin-top:16px;font-size:13px}
+@media print{
+  .topbar,.tabs,.toastwrap,.noprint,.modal{display:none !important}
+  main{padding:0;max-width:none}
+  section.tab{display:none !important}
+  section.tab.printme{display:block !important}
+  body{background:#fff}
+  .card{box-shadow:none;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">ЭО</div>
+  <h1>Экспертная оценка НИОКР: актуальность и целесообразность</h1>
+  <span class="ver">v19.0 · ЭО-НИОКР v1.0 · 22 вопроса</span>
+  <div class="spacer"></div>
+  <button class="btn ghost" id="bDemo">🧪 Демо</button>
+  <button class="btn ghost" id="bExp">⬇ JSON</button>
+  <button class="btn ghost" id="bImp">⬆ JSON</button>
+  <button class="btn ghost" id="bPrint">🖨 Печать</button>
+  <button class="btn ghost" id="bTheme">☾</button>
+  <button class="btn ghost" id="bHelp">?</button>
+</div>
+<div class="tabs" id="tabs">
+  <button data-t="dash" class="on">📊 Дашборд</button>
+  <button data-t="ank">🧮 Анкеты экспертов</button>
+  <button data-t="svod">📋 Сводная оценка</button>
+  <button data-t="panel">📈 Панель</button>
+  <button data-t="zakl">📄 Заключение и протокол</button>
+  <button data-t="metod">📚 Методика</button>
+</div>
+<main>
+  <section class="tab on" id="tab-dash"></section>
+  <section class="tab" id="tab-ank"></section>
+  <section class="tab" id="tab-svod"></section>
+  <section class="tab" id="tab-panel"></section>
+  <section class="tab" id="tab-zakl"></section>
+  <section class="tab" id="tab-metod"></section>
+</main>
+<div class="toastwrap" id="toasts"></div>
+<div class="modal" id="mHelp"><div class="box">
+  <h2>Справка: ЭО-НИОКР v1.0 (модель v19.0)</h2>
+  <p><b>Назначение.</b> Экспертная оценка актуальности и целесообразности продолжения НИОКР. Ровно 22 вопроса (10 + 12), единая шкала 1–5 и Н/О, 5 стоп-факторов, 9 «красных» вопросов, два индекса I<sub>A</sub> и I<sub>C</sub>, матрица решений 3×3. Документальное подтверждение баллов не требуется.</p>
+  <p><b>Порядок работы.</b> 1) «Дашборд»: заполните объект оценки. 2) «Анкеты»: каждый эксперт (3–5) независимо заполняет свою анкету Э1…Э5 (22 вопроса + стоп-факторы + «красные»). 3) «Свод» и «Панель»: групповые индексы, σ-согласованность, сигналы. 4) «Заключение»: автоматический текст и протокол комиссии.</p>
+  <p><b>Горячие клавиши:</b> 1–6 — вкладки; t — тема; ? — справка; Ctrl+S — экспорт JSON; D — демо-меню.</p>
+  <p><b>Правила расчёта.</b> I<sub>A</sub> = ΣA<sub>i</sub>/N<sub>A</sub> (Н/О исключены; минимум 8 из 10 оценок); I<sub>C</sub> = ΣC<sub>j</sub>/N<sub>C</sub> (минимум 10 из 12). Групповой индекс — простое среднее индивидуальных (веса равные). σ — популяционное стандартное отклонение; σ&gt;1,00 — обязательное обсуждение при сохранении исходных оценок. Зоны: В 4,00–5,00 · С 3,00–3,99 · Н 1,00–2,99. Стоп-фактор «Да» хотя бы у одного эксперта — выявлен и блокирует автоматическую рекомендацию «Продолжить НИОКР» (понижение до «Пересмотреть»). Групповой «красный» сигнал — при ≥2 экспертах.</p>
+  <p><b>Роли.</b> Эксперт заполняет только свою анкету; секретарь не вправе менять баллы; председатель не имеет приоритетного голоса; решение принимает комиссия.</p>
+  <p class="note">Модель v19.0 (этап 19) реализует методику ЭО-НИОКР v1.0 по чату «Методика аудита НИОКР» и скану Приложения №2. История версий — в журнале VERSIONS.md репозитория.</p>
+  <p><button class="btn" onclick="document.getElementById('mHelp').classList.remove('on')">Закрыть</button></p>
+</div></div>
+<div class="modal" id="mDemo"><div class="box">
+  <h2>Демо-наборы (контрольные ситуации апробации)</h2>
+  <p class="note">Заполняют три анкеты одинаковымиPattern-оценками для проверки различающей способности методики. Текущие данные заменяются.</p>
+  <p><button class="btn" data-demo="s1">С-1 «Актуальная, но нереализуемая»</button>
+     <button class="btn" data-demo="s2">С-2 «Реализуемая, но устаревшая»</button>
+     <button class="btn" data-demo="s3">С-3 «Перспективная, но без потребителя»</button>
+     <button class="btn gray" data-demo="clear">Очистить всё</button></p>
+  <p><button class="btn gray" onclick="document.getElementById('mDemo').classList.remove('on')">Закрыть</button></p>
+</div></div>
+<input type="file" id="fImp" accept=".json" style="display:none">
+<script>
+"use strict";
+var QEO22 = /*__QEO22__*/null;
+/* ---------- утилиты ---------- */
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function f2(v){return (v==null||isNaN(v))?"—":(Math.round(v*100)/100).toFixed(2);}
+function mean(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function stdevP(a){if(a.length<2)return null;var m=mean(a);return Math.sqrt(a.reduce(function(s,x){return s+(x-m)*(x-m);},0)/a.length);}
+function zone(v){return v==null?null:(v>=4?"В":v>=3?"С":"Н");}
+function zoneName(z){return z=="В"?"Высокая":z=="С"?"Средняя":z=="Н"?"Низкая":null;}
+function sigName(s){return s<=0.5?"Высокая":s<=0.8?"Приемлемая":s<=1.0?"Умеренные разногласия":"Существенные разногласия";}
+var COLZ={5:"#2e7d32",4:"#7cb342",3:"#fbc02d",2:"#ef6c00",1:"#c62828"};
+function colV(v){return v==null?"#9e9e9e":COLZ[Math.max(1,Math.min(5,Math.round(v)))];}
+function toast(msg){var w=$("#toasts");var d=document.createElement("div");d.className="toast";d.innerHTML=msg;w.appendChild(d);setTimeout(function(){d.remove();},5200);}
+/* ---------- состояние ---------- */
+var LS="niokr19_state";
+function blankExpert(){return {fio:"",comp:"",date:"",q:{},qc:{},sf:{},sfc:{},kv:{},kvc:{}};}
+function defState(){var s={v:19,obj:{name:"",shifr:"",exec:"",cust:"",date:""},exp:[blankExpert(),blankExpert(),blankExpert(),blankExpert(),blankExpert()],com:{rec:"",why:"",opinions:""}};return s;}
+var S;
+try{S=JSON.parse(localStorage.getItem(LS))||defState();}catch(e){S=defState();}
+if(!S.exp||S.exp.length!==5){S=defState();}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+/* ---------- расчётное ядро ---------- */
+var CODES=QEO22.q.map(function(q){return q.code;});
+function expIdx(e){
+  var A=QEO22.q.filter(function(q){return q.dir=="A";}).map(function(q){return e.q[q.code];});
+  var C=QEO22.q.filter(function(q){return q.dir=="C";}).map(function(q){return e.q[q.code];});
+  function idx(vals,min){var n=vals.filter(function(v){return typeof v=="number";});if(n.length<min)return null;return n.reduce(function(a,b){return a+b;},0)/n.length;}
+  var noA=A.filter(function(v){return v==="НО";}).length, noC=C.filter(function(v){return v==="НО";}).length;
+  return {IA:idx(A,8),IC:idx(C,10),noA:noA,noC:noC,
+          filled:CODES.filter(function(c){return e.q[c]!=null;}).length};
+}
+function kvSig(k,v){if(typeof v!="number")return false;return k.dir=="neg"?v<=2:v>=4;}
+function calc(){
+  var R={exp:[],q:[],sf:[],kv:[],IA:null,IC:null,sA:null,sC:null,cA:null,cC:null,zA:null,zC:null,rec0:null,rec:null,sfDet:false,sfUnc:false,kvGroup:[],flags:[],lows:[]};
+  R.exp=S.exp.map(expIdx);
+  var iAs=R.exp.map(function(x){return x.IA;}).filter(function(v){return v!=null;});
+  var iCs=R.exp.map(function(x){return x.IC;}).filter(function(v){return v!=null;});
+  R.IA=mean(iAs);R.IC=mean(iCs);
+  R.sA=stdevP(iAs);R.sC=stdevP(iCs);
+  R.cA=R.sA==null?null:sigName(R.sA);R.cC=R.sC==null?null:sigName(R.sC);
+  R.zA=zone(R.IA);R.zC=zone(R.IC);
+  QEO22.q.forEach(function(q){
+    var vals=S.exp.map(function(e){return typeof e.q[q.code]=="number"?e.q[q.code]:null;}).filter(function(v){return v!=null;});
+    var m=mean(vals),sd=stdevP(vals);
+    var row={code:q.code,vals:vals,mean:m,min:vals.length?Math.min.apply(null,vals):null,max:vals.length?Math.max.apply(null,vals):null,sd:sd,
+             flag:sd!=null&&sd>1,low:m!=null&&m<=2};
+    R.q.push(row);
+    if(row.flag)R.flags.push(q.code);
+    if(row.low)R.lows.push(q.code);
+  });
+  QEO22.sf.forEach(function(t,i){
+    var ans=S.exp.map(function(e){return e.sf[i+1]||null;}).filter(Boolean);
+    var yes=ans.filter(function(a){return a=="Да";}).length;
+    var unc=ans.filter(function(a){return a=="Неопределённо";}).length;
+    var no=ans.filter(function(a){return a=="Нет";}).length;
+    var st=yes>0?"ВЫЯВЛЕН":(unc>0?"НЕОПРЕДЕЛЁН":"не выявлен");
+    R.sf.push({n:i+1,yes:yes,unc:unc,no:no,st:st});
+    if(st=="ВЫЯВЛЕН")R.sfDet=true;
+    if(st=="НЕОПРЕДЕЛЁН")R.sfUnc=true;
+  });
+  QEO22.kv.forEach(function(k,i){
+    var sig=0,single=false;
+    S.exp.forEach(function(e){if(kvSig(k,e.kv[i+1]))sig++;});
+    var g=sig>=2;single=sig==1;
+    R.kv.push({n:k.n,sig:sig,group:g,single:single});
+    if(g)R.kvGroup.push(k.n);
+  });
+  R.rec0=(R.zA&&R.zC)?QEO22.matrix[R.zA][R.zC]:null;
+  R.rec=R.rec0?(R.sfDet&&R.rec0=="Продолжить НИОКР"?"ПОНИЖЕНИЕ: Пересмотреть параметры НИОКР (стоп-фактор)":R.rec0):null;
+  return R;
+}
+/* ---------- рендер: дашборд ---------- */
+function renderDash(){
+  var R=calc(),h="";
+  h+='<div class="grid g2"><div class="card"><h3>Объект оценки</h3>'+
+     '<table><tr><th style="width:38%">Наименование НИОКР</th><td><input type="text" id="oName" style="width:100%" value="'+esc(S.obj.name)+'" placeholder="Наименование НИОКР"></td></tr>'+
+     '<tr><th>Шифр</th><td><input type="text" id="oShifr" style="width:100%" value="'+esc(S.obj.shifr)+'"></td></tr>'+
+     '<tr><th>Исполнитель</th><td><input type="text" id="oExec" style="width:100%" value="'+esc(S.obj.exec)+'"></td></tr>'+
+     '<tr><th>Заказчик</th><td><input type="text" id="oCust" style="width:100%" value="'+esc(S.obj.cust)+'"></td></tr>'+
+     '<tr><th>Дата оценки</th><td><input type="date" id="oDate" value="'+esc(S.obj.date)+'"></td></tr></table></div>'+
+     '<div class="card"><h3>Индексы и согласованность</h3><div class="grid g4">'+
+     kpi(f2(R.IA),"Индекс актуальности I_A"+(R.zA?" · зона "+R.zA+" («"+zoneName(R.zA)+"»)":" · нет данных"),R.zA)+
+     kpi(f2(R.IC),"Индекс целесообразности I_C"+(R.zC?" · зона "+R.zC+" («"+zoneName(R.zC)+"»)":" · нет данных"),R.zC)+
+     kpi(R.sA==null?"—":f2(R.sA),"σ I_A · "+(R.cA||"—"),null)+
+     kpi(R.sC==null?"—":f2(R.sC),"σ I_C · "+(R.cC||"—"),null)+
+     '</div>'+sfBox(R)+kvBox(R)+'</div></div>';
+  h+='<div class="grid g2"><div class="card"><h3>Матрица решений 3×3 (I_A ↓ × I_C →)</h3>'+mtxHTML(R)+
+     '<p style="margin-top:10px"><b>Предварительная рекомендация:</b> '+(R.rec?esc(R.rec):"не формируется (неполная оценка)")+'</p>'+
+     '<p class="note">Матрица даёт предварительную рекомендацию; итоговое решение принимает экспертная комиссия (вкладка «Заключение»).</p></div>'+
+     '<div class="card"><h3>Контрольные сигналы</h3>'+feedHTML(R)+'</div></div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Тепловая карта 22 средних баллов</h3><div id="heat">'+heatHTML(R)+'</div>'+
+     '<p class="note">Цвет: 1–2 красный/оранжевый (проблема), 3 жёлтый, 4–5 зелёный; серый — нет данных. Наведите для деталей.</p></div>';
+  $("#tab-dash").innerHTML=h;
+  ["oName","oShifr","oExec","oCust","oDate"].forEach(function(id,i){
+    var el=$("#"+id);el.addEventListener("input",function(){
+      S.obj[["name","shifr","exec","cust","date"][i]]=el.value;save();});
+  });
+}
+function kpi(v,l,z){var col=z=="В"?"#2e7d32":z=="С"?"#ef6c00":z=="Н"?"#c62828":"var(--navy)";
+  return '<div class="kpi"><span class="v" style="color:'+col+'">'+v+'</span><span class="l">'+esc(l)+'</span></div>';}
+function sfBox(R){
+  if(R.sfDet){var l=R.sf.filter(function(s){return s.st=="ВЫЯВЛЕН";}).map(function(s){return "СФ"+s.n;}).join(", ");
+    return '<div class="stopbox">⛔ <b>СТОП-ФАКТОР ВЫЯВЛЕН</b> ('+l+'). Автоматическая рекомендация «Продолжить НИОКР» не применяется; обязательное рассмотрение комиссией.</div>';}
+  if(R.sfUnc){return '<div class="warnbox">⚠ Есть неопределённые стоп-факторы: комиссия рассматривает необходимость дополнительного изучения.</div>';}
+  return '<div class="okbox">✔ Стоп-факторы не выявлены.</div>';}
+function kvBox(R){
+  if(R.kvGroup.length)return '<div class="warnbox">⚠ Групповые «красные» сигналы: КВ'+R.kvGroup.join(", КВ")+' — комиссия обязана учесть при решении.</div>';
+  return "";}
+function mtxHTML(R){
+  var h='<table class="mtx"><tr><th>I_A ↓ \\ I_C →</th><th>В (4,00–5,00)</th><th>С (3,00–3,99)</th><th>Н (1,00–2,99)</th></tr>';
+  ["В","С","Н"].forEach(function(za){
+    h+='<tr><th>Актуальность: '+za+' ('+zoneName(za)+')</th>';
+    ["В","С","Н"].forEach(function(zc){
+      var act=(R.zA==za&&R.zC==zc)?" act":"";
+      h+='<td class="'+act.trim()+'">'+esc(QEO22.matrix[za][zc])+'</td>';
+    });
+    h+='</tr>';});
+  return h+'</table>';}
+function heatHTML(R){
+  return R.q.map(function(r,i){
+    var q=QEO22.q[i];
+    return '<span class="heat" style="background:'+colV(r.mean)+'" title="'+esc(q.code+" "+q.crit)+": средний "+(r.mean==null?"нет данных":f2(r.mean))+(r.flag?" · РАЗНОГЛАСИЕ":"")+(r.low?" · НИЗКАЯ ОЦЕНКА":"")+'">'+ (i<10?(i+1):("Ц"+(i-9))) +'</span>';
+  }).join(" ");}
+function feedHTML(R){
+  var f=[];
+  R.exp.forEach(function(x,i){if(x.filled==0)f.push("Э"+(i+1)+": анкета не заполнена");
+    else if(x.filled<22)f.push("Э"+(i+1)+": заполнено "+x.filled+" из 22");
+    if(x.IA==null&&x.filled>0)f.push("Э"+(i+1)+": I_A не рассчитан (Н/О &gt; 2 по актуальности)");
+    if(x.IC==null&&x.filled>0)f.push("Э"+(i+1)+": I_C не рассчитан (Н/О &gt; 2 по целесообразности)");});
+  if(R.lows.length)f.push("Низкие средние (≤2): "+R.lows.join(", "));
+  if(R.flags.length)f.push("Существенные разногласия (σ&gt;1,00): "+R.flags.join(", "));
+  R.sf.forEach(function(s){if(s.st!="не выявлен")f.push("СФ"+s.n+": "+s.st.toLowerCase());});
+  R.kv.forEach(function(k){if(k.group)f.push("КВ"+k.n+": групповой сигнал ("+k.sig+" эксперта(ов))");});
+  if(!f.length)return '<div class="okbox">Сигналов нет: анкеты полны, расхождений и негативных обстоятельств не выявлено.</div>';
+  return '<ul style="margin:4px 0 0 18px;padding:0">'+f.map(function(x){return "<li>"+x+"</li>";}).join("")+'</ul>';}
+/* ---------- рендер: анкеты ---------- */
+var CUR=0;
+function renderAnk(){
+  var e=S.exp[CUR],R=calc(),x=R.exp[CUR],h="";
+  h+='<div class="chips noprint">';
+  for(var i=0;i<5;i++){var fl=CODES.filter(function(c){return S.exp[i].q[c]!=null;}).length;
+    h+='<button data-e="'+i+'" class="'+(i==CUR?"on":"")+'">Э'+(i+1)+(S.exp[i].fio?" · "+esc(S.exp[i].fio.split(" ")[0]):"")+' <span class="note">('+fl+'/22)</span></button>';}
+  h+='</div>';
+  h+='<div class="card noprint"><h3>Анкета эксперта Э'+(CUR+1)+'</h3><table><tr><th style="width:20%">Ф.И.О. эксперта</th><td><input type="text" id="eFio" style="width:100%" value="'+esc(e.fio)+'"></td><th style="width:18%">Компетенция</th><td><input type="text" id="eComp" style="width:100%" value="'+esc(e.comp)+'"></td><th style="width:10%">Дата</th><td><input type="date" id="eDate" value="'+esc(e.date)+'"></td></tr></table>'+
+  '<p class="note">Заполняется независимо от других экспертов. Балл 1–5 по единой шкале (см. «Методика»); Н/О — только при отсутствии компетенции. Документальные подтверждения не требуются.</p></div>';
+  h+=qBlockHTML(e,"A","РАЗДЕЛ А. АКТУАЛЬНОСТЬ — 10 вопросов");
+  h+=qBlockHTML(e,"C","РАЗДЕЛ Б. ЦЕЛЕСООБРАЗНОСТЬ — 12 вопросов");
+  h+='<div class="card" style="margin-top:14px"><h3>Индивидуальные индексы (авторасчёт)</h3><table><tr><th>I_A (актуальность)</th><th>I_C (целесообразность)</th><th>Н/О (А / Ц)</th><th>Заполнено</th></tr>'+
+     '<tr><td class="num"><b>'+f2(x.IA)+'</b>'+(x.IA==null&&x.filled>0?' <span class="pill" style="background:#c62828">НЕ РАССЧИТАН</span>':'')+'</td>'+
+     '<td class="num"><b>'+f2(x.IC)+'</b>'+(x.IC==null&&x.filled>0?' <span class="pill" style="background:#c62828">НЕ РАССЧИТАН</span>':'')+'</td>'+
+     '<td class="num">'+x.noA+" / "+x.noC+'</td><td class="num">'+x.filled+" / 22</td></tr></table>"+
+     ((x.noA>2||x.noC>2)?'<div class="warnbox">Н/О более двух в направлении — индивидуальный индекс по нему не рассчитывается.</div>':"")+
+     (x.filled<22&&x.filled>0?'<div class="warnbox">Анкета заполнена не полностью.</div>':"")+'</div>';
+  h+=sfBlockHTML(e);
+  h+=kvBlockHTML(e);
+  h+='<p class="noprint" style="margin-top:12px"><button class="btn warn" id="bClrE">Очистить анкету Э'+(CUR+1)+'</button></p>';
+  $("#tab-ank").innerHTML=h;
+  $$("#tab-ank .chips button").forEach(function(b){b.addEventListener("click",function(){CUR=+b.getAttribute("data-e");renderAnk();});});
+  [["eFio","fio"],["eComp","comp"],["eDate","date"]].forEach(function(p){
+    var el=$("#"+p[0]);el.addEventListener("input",function(){e[p[1]]=el.value;save();renderChipsOnly();});});
+  $$("#tab-ank [data-score]").forEach(function(b){b.addEventListener("click",function(){
+    var c=b.getAttribute("data-code"),v=b.getAttribute("data-score");
+    e.q[c]=(v=="НО")?"НО":(e.q[c]==+v?null:+v);save();renderAnk();renderDash();});});
+  $$("#tab-ank [data-qc]").forEach(function(inp){inp.addEventListener("input",function(){e.qc[inp.getAttribute("data-qc")]=inp.value;save();});});
+  $$("#tab-ank [data-sf]").forEach(function(b){b.addEventListener("click",function(){
+    var n=+b.getAttribute("data-sf"),v=b.getAttribute("data-v");
+    e.sf[n]=(e.sf[n]==v?null:v);save();renderAnk();renderDash();});});
+  $$("#tab-ank [data-sfc]").forEach(function(inp){inp.addEventListener("input",function(){e.sfc[+inp.getAttribute("data-sfc")]=inp.value;save();});});
+  $$("#tab-ank [data-kv]").forEach(function(b){b.addEventListener("click",function(){
+    var n=+b.getAttribute("data-kv"),v=+b.getAttribute("data-v");
+    e.kv[n]=(e.kv[n]==v?null:v);save();renderAnk();renderDash();});});
+  $$("#tab-ank [data-kvc]").forEach(function(inp){inp.addEventListener("input",function(){e.kvc[+inp.getAttribute("data-kvc")]=inp.value;save();});});
+  $("#bClrE").addEventListener("click",function(){
+    if(!confirm("Очистить анкету эксперта Э"+(CUR+1)+"?"))return;
+    S.exp[CUR]=blankExpert();save();renderAll();toast("Анкета Э"+(CUR+1)+" очищена");});
+}
+function renderChipsOnly(){$$("#tab-ank .chips button").forEach(function(b,i){
+  b.innerHTML='Э'+(i+1)+(S.exp[i].fio?" · "+esc(S.exp[i].fio.split(" ")[0]):"");});}
+function qBlockHTML(e,dir,title){
+  var qs=QEO22.q.filter(function(q){return q.dir==dir;});
+  var h='<div class="card" style="margin-top:14px"><h3>'+title+'</h3><table><tr><th style="width:5%">Код</th><th style="width:20%">Критерий</th><th>Вопрос эксперту</th><th style="width:24%">Оценка 1–5 / Н/О</th><th style="width:18%">Комментарий</th></tr>';
+  qs.forEach(function(q){
+    var v=e.q[q.code];
+    h+='<tr><td class="num"><b>'+q.code+'</b></td><td>'+esc(q.crit)+(q.note?'<details class="anch"><summary>разграничение</summary><p class="note">'+esc(q.note)+'</p></details>':"")+'</td>'+
+       '<td>'+esc(q.q)+'<details class="anch"><summary>якоря шкалы 1–5</summary><table>'+
+       [1,2,3,4,5].map(function(k){return '<tr><th class="num" style="width:6%">'+k+'</th><td>'+esc(q.a[k])+'</td></tr>';}).join("")+
+       '</table></details></td>'+
+       '<td><span class="sb">'+[1,2,3,4,5].map(function(k){return '<button class="k'+k+(v==k?" on":"")+'" data-score="'+k+'" data-code="'+q.code+'">'+k+'</button>';}).join("")+
+       '<button class="no'+(v=="НО"?" on":"")+'" data-score="НО" data-code="'+q.code+'" title="Не оценивается">Н/О</button></span></td>'+
+       '<td><input type="text" style="width:100%" data-qc="'+q.code+'" value="'+esc(e.qc[q.code]||"")+'"></td></tr>';
+  });
+  return h+'</table></div>';}
+function sfBlockHTML(e){
+  var h='<div class="card" style="margin-top:14px"><h3>Стоп-факторы (отдельно от индексов)</h3><table><tr><th style="width:5%">№</th><th>Стоп-фактор</th><th style="width:26%">Ответ</th><th style="width:20%">Комментарий</th></tr>';
+  QEO22.sf.forEach(function(t,i){
+    var v=e.sf[i+1];
+    h+='<tr><td class="num">'+(i+1)+'</td><td>'+esc(t)+'</td><td><span class="sb">'+
+       ["Да","Нет","Неопределённо"].map(function(a){return '<button class="'+(v==a?"on k1":"")+'" data-sf="'+(i+1)+'" data-v="'+a+'">'+a+'</button>';}).join("")+'</span></td>'+
+       '<td><input type="text" style="width:100%" data-sfc="'+(i+1)+'" value="'+esc(e.sfc[i+1]||"")+'"></td></tr>';
+  });
+  return h+'</table><p class="note">«Да» хотя бы у одного эксперта — фактор выявлен и выносится на обязательное рассмотрение комиссии; блокирует автоматическую рекомендацию «Продолжить НИОКР».</p></div>';}
+function kvBlockHTML(e){
+  var lab={1:"да",2:"возм. да",3:"неопр.",4:"возм. нет",5:"нет"};
+  var h='<div class="card" style="margin-top:14px"><h3>«Красные» вопросы (отдельно от индексов)</h3><table><tr><th style="width:5%">№</th><th>Вопрос</th><th style="width:10%">Направление</th><th style="width:28%">Балл (1=да … 5=нет)</th><th style="width:18%">Комментарий</th></tr>';
+  QEO22.kv.forEach(function(k,i){
+    var v=e.kv[i+1];
+    h+='<tr><td class="num">'+k.n+'</td><td>'+esc(k.q)+'</td><td class="num">'+(k.dir=="neg"?"негатив.":"позитив.")+'</td><td><span class="sb">'+
+       [1,2,3,4,5].map(function(x){return '<button class="k'+x+(v==x?" on":"")+'" data-kv="'+(i+1)+'" data-v="'+x+'" title="'+lab[x]+'">'+x+'</button>';}).join("")+'</span></td>'+
+       '<td><input type="text" style="width:100%" data-kvc="'+(i+1)+'" value="'+esc(e.kvc[i+1]||"")+'"></td></tr>';
+  });
+  return h+'</table><p class="note">Сигнал риска: по негативным (№1–6, 9) — балл 1–2; по позитивным (№7–8) — балл 4–5. Групповой сигнал — при ≥2 экспертах.</p></div>';}
+/* ---------- рендер: свод ---------- */
+function renderSvod(){
+  var R=calc(),h="";
+  h+='<div class="card"><h3>Индивидуальные и групповые индексы</h3><table><tr><th>Эксперт</th><th class="num">I_A</th><th class="num">I_C</th><th>Статус</th></tr>';
+  R.exp.forEach(function(x,i){
+    var st=S.exp[i].filled==0?"НЕ ЗАПОЛНЕНА":((x.IA==null&&x.IC==null)?"ИНДЕКСЫ НЕ РАССЧИТАНЫ":"ОК");
+    h+='<tr><td>Э'+(i+1)+(S.exp[i].fio?" — "+esc(S.exp[i].fio):"")+'</td><td class="num">'+f2(x.IA)+'</td><td class="num">'+f2(x.IC)+'</td><td>'+st+'</td></tr>';});
+  h+='<tr style="font-weight:700"><td>ГРУППОВОЕ ЗНАЧЕНИЕ</td><td class="num">'+f2(R.IA)+'</td><td class="num">'+f2(R.IC)+'</td><td>среднее по действующим индексам</td></tr>';
+  h+='<tr><td>σ (популяционное)</td><td class="num">'+f2(R.sA)+'</td><td class="num">'+f2(R.sC)+'</td><td></td></tr>';
+  h+='<tr><td>Согласованность</td><td class="num">'+(R.cA||"—")+'</td><td class="num">'+(R.cC||"—")+'</td><td>пороги: ≤0,50 / ≤0,80 / ≤1,00 / &gt;1,00</td></tr></table></div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Повопросная сводка (22 вопроса)</h3><table><tr><th>Код</th><th>Критерий</th>'+
+     [1,2,3,4,5].map(function(i){return '<th class="num">Э'+i+'</th>';}).join("")+
+     '<th class="num">Среднее</th><th class="num">Min</th><th class="num">Max</th><th class="num">Разброс</th><th class="num">σ</th><th>Флаги</th></tr>';
+  R.q.forEach(function(r,i){
+    var q=QEO22.q[i];
+    h+='<tr><td class="num"><b>'+q.code+'</b></td><td>'+esc(q.crit)+'</td>';
+    var cells="";for(var k=0;k<5;k++){var v=S.exp[k].q[q.code];cells+='<td class="num">'+(v==null?"":(v=="НО"?"Н/О":v))+'</td>';}
+    h+=cells+'<td class="num" style="background:'+colV(r.mean)+'22"><b>'+f2(r.mean)+'</b></td><td class="num">'+(r.min==null?"—":r.min)+'</td><td class="num">'+(r.max==null?"—":r.max)+'</td><td class="num">'+((r.min!=null&&r.max!=null)?(r.max-r.min):"—")+'</td><td class="num">'+f2(r.sd)+'</td><td>'+(r.flag?'<span class="pill" style="background:#ef6c00">РАЗНОГЛАСИЕ</span> ':"")+(r.low?'<span class="pill" style="background:#c62828">НИЗКАЯ</span>':"")+'</td></tr>';
+  });
+  h+='</table></div>';
+  h+='<div class="grid g2" style="margin-top:14px"><div class="card"><h3>Стоп-факторы — группа</h3><table><tr><th>№</th><th>Фактор</th><th class="num">Да</th><th class="num">Неопр.</th><th class="num">Нет</th><th>Статус</th></tr>';
+  R.sf.forEach(function(s,i){h+='<tr><td class="num">'+s.n+'</td><td>'+esc(QEO22.sf[i])+'</td><td class="num">'+s.yes+'</td><td class="num">'+s.unc+'</td><td class="num">'+s.no+'</td><td>'+(s.st=="ВЫЯВЛЕН"?'<span class="pill" style="background:#c62828">ВЫЯВЛЕН</span>':s.st=="НЕОПРЕДЕЛЁН"?'<span class="pill" style="background:#ef6c00">НЕОПРЕДЕЛЁН</span>':"не выявлен")+'</td></tr>';});
+  h+='</table></div><div class="card"><h3>«Красные» вопросы — группа</h3><table><tr><th>№</th><th>Вопрос</th><th class="num">Сигналов</th><th>Групповой сигнал</th></tr>';
+  R.kv.forEach(function(k,i){h+='<tr><td class="num">'+k.n+'</td><td>'+esc(QEO22.kv[i].q)+'</td><td class="num">'+k.sig+'</td><td>'+(k.group?'<span class="pill" style="background:#c62828">ГРУППОВОЙ</span>':k.single?'<span class="pill" style="background:#9e9e9e">единичный</span>':"")+'</td></tr>';});
+  h+='</table></div></div>';
+  h+='<p class="noprint" style="margin-top:12px"><button class="btn" id="bCsv">⬇ CSV сводной таблицы</button></p>';
+  $("#tab-svod").innerHTML=h;
+  $("#bCsv").addEventListener("click",function(){
+    var rows=[["Код","Критерий","Э1","Э2","Э3","Э4","Э5","Среднее","Min","Max","Разброс","_sigma","Флаги"]];
+    R.q.forEach(function(r,i){var q=QEO22.q[i];
+      var line=[q.code,q.crit];for(var k=0;k<5;k++){var v=S.exp[k].q[q.code];line.push(v==null?"":(v=="НО"?"Н/О":v));}
+      line.push(r.mean==null?"":f2(r.mean),r.min==null?"":r.min,r.max==null?"":r.max,(r.min!=null&&r.max!=null)?(r.max-r.min):"",r.sd==null?"":f2(r.sd),(r.flag?"РАЗНОГЛАСИЕ ":"")+(r.low?"НИЗКАЯ":""));
+      rows.push(line);});
+    rows.push([]);rows.push(["I_A групповой",f2(R.IA),"зона",R.zA||""]);rows.push(["I_C групповой",f2(R.IC),"зона",R.zC||""]);
+    rows.push(["sigma I_A",f2(R.sA),R.cA||""]);rows.push(["sigma I_C",f2(R.sC),R.cC||""]);
+    rows.push(["Рекомендация",R.rec||"не формируется"]);
+    var csv="\uFEFF"+rows.map(function(r){return r.map(function(c){c=String(c==null?"":c);return /[";\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(";");}).join("\n");
+    dl(csv,"Свод_ЭО_НИОКР_"+(S.obj.shifr||"объект")+".csv","text/csv");});
+}
+function dl(content,name,mime){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type:mime||"text/plain"}));a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);}
+/* ---------- рендер: панель ---------- */
+function renderPanel(){
+  var R=calc();
+  var h='<div class="grid g2"><div class="card"><h3>Индексы и пороги зон</h3>'+svgIdx(R)+'</div>'+
+        '<div class="card"><h3>Матрица решений и рекомендация</h3>'+mtxHTML(R)+
+        '<p style="margin-top:8px"><b>'+(R.rec?esc(R.rec):"Рекомендация не формируется")+'</b></p>'+sfBox(R)+kvBox(R)+'</div></div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Профиль 22 критериев (средние баллы группы)</h3>'+svgProfile(R)+'</div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Согласованность: σ по вопросам (тепловая полоса)</h3>'+svgSigma(R)+
+     '<p class="note">Зелёный — σ≤0,5; жёлтый — до 1,0; красный — &gt;1,00 (обязательное обсуждение). Серый — нет данных.</p></div>';
+  $("#tab-panel").innerHTML=h;}
+function svgIdx(R){
+  var W=420,H=150,x0=60,bw=90;
+  function bar(x,v,label){
+    if(v==null)return '<text x="'+(x+bw/2)+'" y="60" text-anchor="middle" font-size="12" fill="#8c8c8c">'+label+': нет данных</text>';
+    var hh=(v/5)*(H-50),y=H-30-hh,col=v>=4?"#2e7d32":v>=3?"#fbc02d":"#c62828";
+    return '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+hh+'" rx="4" fill="'+col+'">'+
+      '</rect><text x="'+(x+bw/2)+'" y="'+(y-6)+'" text-anchor="middle" font-size="15" font-weight="700" fill="'+col+'">'+f2(v)+'</text>'+
+      '<text x="'+(x+bw/2)+'" y="'+(H-12)+'" text-anchor="middle" font-size="12" fill="currentColor">'+label+'</text>';}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img">';
+  [3,4].forEach(function(t){var y=H-30-(t/5)*(H-50);
+    s+='<line x1="40" y1="'+y+'" x2="'+(W-10)+'" y2="'+y+'" stroke="'+(t==4?"#2e7d32":"#ef6c00")+'" stroke-dasharray="5 4" opacity=".6"/><text x="42" y="'+(y-3)+'" font-size="10" fill="'+(t==4?"#2e7d32":"#ef6c00")+'">порог '+t.toFixed(1)+'</text>';});
+  s+=bar(70,R.IA,"I_A актуальность")+bar(240,R.IC,"I_C целесообразность");
+  return s+'</svg>';}
+function svgProfile(R){
+  var W=1160,H=210,n=22,bw=(W-60)/n;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img">';
+  [1,2,3,4,5].forEach(function(t){var y=H-30-((t-1)/4)*(H-60);
+    s+='<line x1="46" y1="'+y+'" x2="'+(W-8)+'" y2="'+y+'" stroke="#c8d2e4" stroke-width="1"/><text x="40" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#8c8c8c">'+t+'</text>';});
+  R.q.forEach(function(r,i){
+    var x=50+i*bw;
+    if(r.mean!=null){var y=H-30-((r.mean-1)/4)*(H-60);
+      s+='<rect x="'+(x+3)+'" y="'+y+'" width="'+(bw-8)+'" height="'+(H-30-y)+'" rx="3" fill="'+colV(r.mean)+'"><title>'+QEO22.q[i].code+" "+esc(QEO22.q[i].crit)+": "+f2(r.mean)+'</title></rect>';}
+    s+='<text x="'+(x+bw/2)+'" y="'+(H-14)+'" text-anchor="middle" font-size="9.5" fill="currentColor">'+(i<10?("А"+(i+1)):("Ц"+(i-9)))+'</text>';});
+  return s+'</svg>';}
+function svgSigma(R){
+  return '<div style="display:flex;gap:4px;flex-wrap:wrap">'+R.q.map(function(r,i){
+    var c=r.sd==null?"#9e9e9e":r.sd<=0.5?"#2e7d32":r.sd<=1?"#fbc02d":"#c62828";
+    return '<span class="heat" style="background:'+c+'" title="'+QEO22.q[i].code+': σ='+(r.sd==null?"нет данных":f2(r.sd))+'">'+(i<10?(i+1):("Ц"+(i-9)))+'</span>';}).join("")+'</div>';}
+/* ---------- рендер: заключение ---------- */
+function zaklSections(R){
+  var expList=S.exp.map(function(e,i){return e.fio?("Э"+(i+1)+" "+e.fio+(e.comp?" ("+e.comp+")":"")):null;}).filter(Boolean).join("; ");
+  var sec=[];
+  sec.push(["1. Объект и состав комиссии","НИОКР: "+(S.obj.name||"__")+" (шифр "+(S.obj.shifr||"__")+"). Исполнитель: "+(S.obj.exec||"__")+", заказчик: "+(S.obj.cust||"__")+". Дата оценки: "+(S.obj.date||"__")+". Эксперты: "+(expList||"__")+"."]);
+  sec.push(["2. Природа оценки","Настоящая оценка является экспертным суждением компетентных специалистов и не является верификацией документированных фактов. Документальное подтверждение баллов методикой ЭО-НИОКР v1.0 не требуется."]);
+  sec.push(["3. Оценка актуальности",R.IA==null?"Индекс актуальности не рассчитан (недостаточное число оценок: Н/О более двух).":"Индекс актуальности составляет "+f2(R.IA)+" балла, что соответствует "+(R.IA>=4?"высокому":R.IA>=3?"среднему":"низкому")+" уровню (зона "+R.zA+"). "+(lowList(R,0,10)?"Вопросы с оценкой ≤2: "+lowList(R,0,10)+".":"Вопросов с оценкой ≤2 не выявлено.")]);
+  sec.push(["4. Оценка целесообразности",R.IC==null?"Индекс целесообразности не рассчитан (недостаточное число оценок).":"Индекс целесообразности составляет "+f2(R.IC)+" балла, что соответствует "+(R.IC>=4?"высокому":R.IC>=3?"среднему":"низкому")+" уровню (зона "+R.zC+"). "+(lowList(R,10,22)?"Вопросы с оценкой ≤2: "+lowList(R,10,22)+".":"Вопросов с оценкой ≤2 не выявлено.")]);
+  sec.push(["5. Согласованность экспертов","σ(I_A)="+(R.sA==null?"—":f2(R.sA))+" ("+(R.cA||"—")+"); σ(I_C)="+(R.sC==null?"—":f2(R.sC))+" ("+(R.cC||"—")+"). Вопросов с существенными разногласиями (σ>1,00): "+(R.flags.length?R.flags.join(", ")+" — требуется обсуждение при сохранении исходных оценок.":"не выявлено.")]);
+  sec.push(["6. Стоп-факторы","Статус: "+(R.sfDet?"СТОП-ФАКТОР ВЫЯВЛЕН ("+R.sf.filter(function(s){return s.st=="ВЫЯВЛЕН";}).map(function(s){return "СФ"+s.n;}).join(", ")+") — обязательное рассмотрение комиссией; автоматическая рекомендация «Продолжить НИОКР» не применяется.":R.sfUnc?"есть неопределённые факторы — комиссия рассматривает необходимость дополнительного изучения.":"стоп-факторы не выявлены.")]);
+  sec.push(["7. «Красные» вопросы","Групповые сигналы (≥2 экспертов): "+(R.kvGroup.length?"КВ"+R.kvGroup.join(", КВ")+" — комиссия обязана учесть при вынесении решения.":"не выявлены.")+(singleKv(R)?" Единичные сигналы (особые мнения): КВ"+singleKv(R).join(", КВ")+".":"")]);
+  sec.push(["8. Предварительная рекомендация","По матрице решений: "+(R.rec0||"не формируется (неполная оценка)")+". С учётом оверрайда стоп-факторов: "+(R.rec||"не формируется")+". Основание: I_A="+(R.IA==null?"н/д":f2(R.IA))+" ("+(R.zA||"н/д")+"), I_C="+(R.IC==null?"н/д":f2(R.IC))+" ("+(R.zC||"н/д")+")."]);
+  return sec;}
+function lowList(R,a,b){return R.q.slice(a,b).filter(function(r){return r.low;}).map(function(r){return r.code;}).join(", ");}
+function singleKv(R){return R.kv.filter(function(k){return k.single;}).map(function(k){return k.n;});}
+function renderZakl(){
+  var R=calc(),sec=zaklSections(R);
+  var h='<div class="card zakl"><h3>Экспертное заключение (формируется автоматически из расчётных ячеек)</h3>';
+  sec.forEach(function(s){h+='<p><b>'+s[0]+'.</b> '+esc(s[1])+'</p>';});
+  h+='</div>';
+  h+='<div class="card" style="margin-top:14px"><h3>Протокол экспертной комиссии</h3>'+
+     '<table><tr><th style="width:34%">Рекомендация комиссии</th><td><select id="cRec" style="width:100%">'+
+     '<option value="">— не выбрана —</option>'+QEO22.recs5.map(function(r){return '<option'+(S.com.rec==r?" selected":"")+'>'+r+'</option>';}).join("")+
+     '</select></td></tr>'+
+     '<tr><th>Обоснование решения</th><td><textarea id="cWhy" rows="3" style="width:100%">'+esc(S.com.why)+'</textarea></td></tr>'+
+     '<tr><th>Особые мнения экспертов</th><td><textarea id="cOp" rows="3" style="width:100%">'+esc(S.com.opinions)+'</textarea></td></tr></table>'+
+     '<div class="sig">Председатель комиссии: ____________________ &nbsp; Члены комиссии: ____________________<br>Ответственный секретарь: ____________________</div>'+
+     (R.sfDet&&S.com.rec&&S.com.rec.indexOf("Пересмотр")<0&&S.com.rec.indexOf("приостанов")<0&&S.com.rec.indexOf("прекращ")<0?'<div class="stopbox">⛔ При выявленном стоп-факторе решение комиссии выше «Пересмотреть» требует мотивировки в обосновании.</div>':"")+
+     '</div>';
+  h+='<p class="noprint" style="margin-top:12px"><button class="btn" id="bPrZ">🖨 Печать / PDF</button> <button class="btn" id="bCopyZ">📋 Копировать в Word</button> <button class="btn" id="bMD">⬇ Чек-лист (MD)</button></p>';
+  $("#tab-zakl").innerHTML=h;
+  $("#cRec").addEventListener("change",function(){S.com.rec=this.value;save();renderZakl();});
+  $("#cWhy").addEventListener("input",function(){S.com.why=this.value;save();});
+  $("#cOp").addEventListener("input",function(){S.com.opinions=this.value;save();});
+  $("#bPrZ").addEventListener("click",function(){printTab("zakl");});
+  $("#bCopyZ").addEventListener("click",function(){
+    var t=protText(R);
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast("Заключение скопировано в буфер");},function(){toast("Буфер недоступен — используйте печать");});}
+    else toast("Буфер обмена недоступен в этой среде");});
+  $("#bMD").addEventListener("click",function(){dl(mdChecklist(R),"Чек-лист_ЭО_НИОКР_22_"+(S.obj.shifr||"объект")+".md","text/markdown");});
+}
+function protText(R){
+  var sec=zaklSections(R);
+  var t="ПРОТОКОЛ экспертной комиссии по оценке актуальности и целесообразности НИОКР\n\n";
+  sec.forEach(function(s){t+=s[0].toUpperCase()+". "+s[1]+"\n\n";});
+  t+="9. РЕШЕНИЕ КОМИССИИ\nРекомендация: "+(S.com.rec||"__")+"\nОбоснование: "+(S.com.why||"__")+"\nОсобые мнения: "+(S.com.opinions||"__")+"\n\nПредседатель: ____________ Члены комиссии: ____________ Секретарь: ____________\n";
+  return t;}
+function mdChecklist(R){
+  var L=[];
+  L.push("# Чек-лист экспертной оценки НИОКР (ЭО-НИОКР v1.0, модель v19.0)");
+  L.push("");
+  L.push("**Объект:** "+(S.obj.name||"__")+" (шифр "+(S.obj.shifr||"__")+"); дата: "+(S.obj.date||"__")+".");
+  L.push("**Эксперты:** "+(S.exp.map(function(e,i){return e.fio?("Э"+(i+1)+" "+e.fio):null;}).filter(Boolean).join("; ")||"__")+".");
+  L.push("");
+  L.push("## Основные вопросы (22)");
+  L.push("");
+  L.push("| Код | Критерий | Э1 | Э2 | Э3 | Э4 | Э5 | Среднее | Min | Max | σ | Флаги |");
+  L.push("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  R.q.forEach(function(r,i){var q=QEO22.q[i];
+    var cells="";for(var k=0;k<5;k++){var v=S.exp[k].q[q.code];cells+=" | "+(v==null?"":(v=="НО"?"Н/О":v));}
+    L.push("| "+q.code+" | "+q.crit+cells+" | "+(r.mean==null?"—":f2(r.mean))+" | "+(r.min==null?"—":r.min)+" | "+(r.max==null?"—":r.max)+" | "+(r.sd==null?"—":f2(r.sd))+" | "+((r.flag?"РАЗНОГЛАСИЕ ":"")+(r.low?"НИЗКАЯ":"")||"—")+" |");});
+  L.push("");
+  L.push("## Индексы");
+  L.push("");
+  L.push("- I_A = "+(R.IA==null?"н/д":f2(R.IA))+" (зона "+(R.zA||"н/д")+"); σ = "+(R.sA==null?"—":f2(R.sA))+" ("+(R.cA||"—")+")");
+  L.push("- I_C = "+(R.IC==null?"н/д":f2(R.IC))+" (зона "+(R.zC||"н/д")+"); σ = "+(R.sC==null?"—":f2(R.sC))+" ("+(R.cC||"—")+")");
+  L.push("");
+  L.push("## Стоп-факторы");
+  L.push("");
+  R.sf.forEach(function(s,i){L.push("- СФ"+s.n+": "+QEO22.sf[i]+" — Да: "+s.yes+", Неопр.: "+s.unc+", Нет: "+s.no+" → **"+s.st+"**");});
+  L.push("");
+  L.push("## «Красные» вопросы");
+  L.push("");
+  R.kv.forEach(function(k,i){L.push("- КВ"+k.n+": "+QEO22.kv[i].q+" — сигналов: "+k.sig+(k.group?" → **ГРУППОВОЙ СИГНАЛ**":k.single?" (единичный)":""));});
+  L.push("");
+  L.push("## Рекомендация");
+  L.push("");
+  L.push("- Матрица: "+(R.rec0||"не формируется")+"; с оверрайдом: "+(R.rec||"не формируется")+".");
+  L.push("- Решение комиссии: "+(S.com.rec||"__")+".");
+  return L.join("\n");}
+/* ---------- рендер: методика ---------- */
+function renderMetod(){
+  var h='<div class="card"><h3>Методика ЭО-НИОКР v1.0 — справочный раздел</h3>'+
+  '<p class="note">Полный текст методики — файл «11_Методика_ЭО_НИОКР_22_вопроса_v19» (MD/DOCX) в пакете поставки. Здесь — операционный справочник модели.</p>'+
+  '<input type="text" id="mSearch" placeholder="Поиск по методике…" style="width:100%;margin:6px 0"></div>';
+  h+='<div class="grid g2" style="margin-top:14px"><div class="card mblock"><h3>1. Единая шкала 1–5 и Н/О</h3><table><tr><th>Балл</th><th>Уровень</th><th>Пояснение</th></tr>'+
+     QEO22.scale.map(function(s){return '<tr><td class="num"><b>'+s[0]+'</b></td><td>'+s[1]+'</td><td>'+s[2]+'</td></tr>';}).join("")+
+     '<tr><td class="num"><b>Н/О</b></td><td>Не оценивается</td><td>Эксперт не обладает компетенцией для суждения; не является баллом и не входит в расчёт.</td></tr></table>'+
+     '<p class="note">Направление шкалы единообразно: 1 — неблагоприятное состояние, 5 — благоприятное. Баллы 2 и 4 — из общих определений; при колебании выбирается более низкий балл (принцип осторожности). 3 — о НИОКР (признак промежуточный), Н/О — об эксперте.</p></div>'+
+     '<div class="card mblock"><h3>2. Правила оценивания и расчёта</h3><ol style="margin:4px 0 0 18px;padding:0">'+
+     QEO22.rules.map(function(r){return "<li>"+r+"</li>";}).join("")+'</ol>'+
+     '<p style="margin-top:8px"><b>Формулы.</b> I_A = ΣA_i/N_A (мин. 8 из 10); I_C = ΣC_j/N_C (мин. 10 из 12); групповой — простое среднее; σ популяционное. Зоны: В 4,00–5,00 · С 3,00–3,99 · Н 1,00–2,99.</p>'+
+     '<table class="mtx" style="margin-top:6px">'+mtxStatic()+'</table></div></div>';
+  h+='<div class="card mblock" style="margin-top:14px"><h3>3. Якоря шкалы по всем 22 вопросам</h3>';
+  ["A","C"].forEach(function(dir){
+    h+='<h4>'+(dir=="A"?"Направление 1. Актуальность — 10 вопросов":"Направление 2. Целесообразность — 12 вопросов")+'</h4><table><tr><th style="width:5%">Код</th><th style="width:16%">Критерий</th><th style="width:29%">Вопрос</th><th>Якоря 1–5</th></tr>';
+    QEO22.q.filter(function(q){return q.dir==dir;}).forEach(function(q){
+      h+='<tr><td class="num"><b>'+q.code+'</b></td><td>'+esc(q.crit)+'</td><td>'+esc(q.q)+(q.note?'<p class="note"><b>Разграничение:</b> '+esc(q.note)+'</p>':"")+'</td><td>'+
+        [1,2,3,4,5].map(function(k){return '<b>'+k+'</b> — '+esc(q.a[k]);}).join('<br>')+'</td></tr>';});
+    h+='</table>';});
+  h+='</div>';
+  h+='<div class="grid g2" style="margin-top:14px"><div class="card mblock"><h3>4. Стоп-факторы (5)</h3><ol style="margin:4px 0 0 18px;padding:0">'+QEO22.sf.map(function(s){return "<li>"+s+"</li>";}).join("")+'</ol><p class="note">Ответ: Да / Нет / Неопределённо. «Да» хотя бы у одного эксперта — выявлен: обязательное рассмотрение комиссией и блокировка автоматической рекомендации «Продолжить НИОКР» (понижение до «Пересмотреть»). В индексы не входят.</p></div>'+
+     '<div class="card mblock"><h3>5. «Красные» вопросы (9)</h3><ol style="margin:4px 0 0 18px;padding:0">'+QEO22.kv.map(function(k){return "<li>"+k.q+" <span class='note'>("+(k.dir=="neg"?"негативный: сигнал 1–2":"позитивный: сигнал 4–5")+")</span></li>";}).join("")+'</ol><p class="note">Шкала ответов: 1=Да, 2=Возможно да, 3=Неопределённо, 4=Возможно нет, 5=Нет. Групповой сигнал — при ≥2 экспертах; единичный — особое мнение. В индексы не входят.</p></div></div>';
+  h+='<div class="card mblock" style="margin-top:14px"><h3>6. Регламент комиссии, периодичность, апробация</h3>'+
+     '<p><b>Хронология заседания (1,5–2 ч на НИОКР):</b> вводное слово 5 мин → индивидуальное заполнение изолированно 40–60 мин → сбор и обработка 10 мин → представление результатов 10 мин → обсуждение расхождений (σ&gt;1,00, СФ, КВ) 20–30 мин, без голосования → при желании повторная оценка (исходные сохраняются) → рекомендация → протокол.</p>'+
+     '<p><b>Запреты:</b> эксперт не показывает анкету до завершения этапа 2; секретарь не изменяет баллы и не трактует Н/О как 3; руководитель НИОКР не присутствует при заполнении; председатель не имеет приоритетного голоса; комиссия не обязана приходить к единому мнению.</p>'+
+     '<p><b>Периодичность:</b> первоначальная (включение в портфель), плановая (не реже 1 раза в год), внеплановая (существенное изменение потребности, техники, условий, стоимости).</p>'+
+     '<p><b>Апробация:</b> контрольные ситуации С-1 «актуальная, но нереализуемая», С-2 «реализуемая, но устаревшая», С-3 «перспективная, но без потребителя» (кнопка «🧪 Демо»); критерии: различение ситуаций матрицей, σ≤0,80 не менее чем по 18 из 22 вопросов, доля Н/О ≤15 %, заполнение ≤25 мин.</p>'+
+     '<p><b>Границы v1.0:</b> оцениваются ценность и оправданность НИОКР, но не фактическое качество выполнения работ; третий индекс (результативность), AHP и дифференцированные веса экспертов не вводятся до результатов апробации.</p></div>';
+  $("#tab-metod").innerHTML=h;
+  $("#mSearch").addEventListener("input",function(){
+    var q=this.value.toLowerCase();
+    $$("#tab-metod .mblock").forEach(function(b){b.style.display=!q||b.textContent.toLowerCase().indexOf(q)>=0?"":"none";});});
+}
+function mtxStatic(){
+  var h='<tr><th>I_A ↓ \\ I_C →</th><th>В</th><th>С</th><th>Н</th></tr>';
+  ["В","С","Н"].forEach(function(za){h+='<tr><th>'+za+'</th>'+["В","С","Н"].map(function(zc){return '<td>'+QEO22.matrix[za][zc]+'</td>';}).join("")+'</tr>';});
+  return h;}
+/* ---------- демо ---------- */
+var DEMO={
+ s1:{name:"С-1 «Актуальная, но нереализуемая»",A:[5,4,5,4,5,4,5,4,5,4],C:[1,2,3,2,2,3,3,3,3,3,2,3],sf:["Нет","Нет","Нет","Нет","Нет"],kv:[5,5,5,5,2,5,1,1,5]},
+ s2:{name:"С-2 «Реализуемая, но устаревшая»",A:[2,3,2,3,2,3,3,3,2,2],C:[4,5,4,5,4,5,4,5,4,5,4,5],sf:["Да","Нет","Нет","Нет","Нет"],kv:[2,2,1,5,5,2,1,1,4]},
+ s3:{name:"С-3 «Перспективная, но без потребителя»",A:[2,3,5,5,4,4,3,4,5,4],C:[4,4,4,4,4,4,2,2,2,4,4,4],sf:["Нет","Нет","Нет","Нет","Нет"],kv:[5,5,5,5,5,5,4,4,5]}
+};
+function applyDemo(key){
+  if(key=="clear"){S=defState();save();renderAll();toast("Данные очищены");return;}
+  var d=DEMO[key];S=defState();
+  S.obj.name="Демо: "+d.name;S.obj.shifr="DEMO-"+key.toUpperCase();S.obj.date=new Date().toISOString().slice(0,10);
+  var QA=QEO22.q.filter(function(q){return q.dir=="A";}).map(function(q){return q.code;});
+  var QC=QEO22.q.filter(function(q){return q.dir=="C";}).map(function(q){return q.code;});
+  for(var e=0;e<3;e++){
+    var ex=S.exp[e];ex.fio="Эксперт "+(e+1)+" (демо)";ex.comp="демонстрационный профиль";ex.date=S.obj.date;
+    QA.forEach(function(c,i){ex.q[c]=d.A[i];});
+    QC.forEach(function(c,i){ex.q[c]=d.C[i];});
+    for(var i=1;i<=5;i++)ex.sf[i]=d.sf[i-1];
+    for(var k=1;k<=9;k++)ex.kv[k]=d.kv[k-1];
+  }
+  save();renderAll();
+  var R=calc();
+  toast("Демо "+d.name+": I_A="+f2(R.IA)+" ("+(R.zA||"—")+"), I_C="+f2(R.IC)+" ("+(R.zC||"—")+") → "+(R.rec||"—"));
+}
+/* ---------- навигация, сервис ---------- */
+function printTab(t){
+  $$("section.tab").forEach(function(s){s.classList.remove("printme");});
+  $("#tab-"+t).classList.add("printme");
+  window.print();}
+var TABS=["dash","ank","svod","panel","zakl","metod"];
+function goTab(t){
+  $$("#tabs button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-t")==t);});
+  $$("section.tab").forEach(function(s){s.classList.toggle("on",s.id=="tab-"+t);});}
+function renderAll(){renderDash();renderAnk();renderSvod();renderPanel();renderZakl();renderMetod();}
+$$("#tabs button").forEach(function(b){b.addEventListener("click",function(){goTab(b.getAttribute("data-t"));});});
+$("#bTheme").addEventListener("click",function(){document.body.classList.toggle("dark");save();});
+$("#bHelp").addEventListener("click",function(){$("#mHelp").classList.add("on");});
+$("#bDemo").addEventListener("click",function(){$("#mDemo").classList.add("on");});
+$$("#mDemo [data-demo]").forEach(function(b){b.addEventListener("click",function(){applyDemo(b.getAttribute("data-demo"));$("#mDemo").classList.remove("on");});});
+$("#bPrint").addEventListener("click",function(){printTab($$("#tabs button").filter(function(b){return b.classList.contains("on");})[0].getAttribute("data-t"));});
+$("#bExp").addEventListener("click",function(){dl(JSON.stringify(S,null,1),"ЭО_НИОКР_v19_"+(S.obj.shifr||"объект")+".json","application/json");toast("Экспорт JSON выполнен");});
+$("#bImp").addEventListener("click",function(){$("#fImp").click();});
+$("#fImp").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{var d=JSON.parse(rd.result);
+    if(!d||d.v!==19||!d.exp||d.exp.length!==5)throw 0;
+    S=d;save();renderAll();toast("Импорт JSON v19 выполнен");}
+    catch(e){toast("Файл не является состоянием модели v19");}};
+  rd.readAsText(f);this.value="";});
+document.addEventListener("keydown",function(ev){
+  if(ev.ctrlKey&&(ev.key=="s"||ev.key=="S"||ev.key=="ы")){ev.preventDefault();$("#bExp").click();return;}
+  if(ev.target&&/INPUT|TEXTAREA|SELECT/.test(ev.target.tagName))return;
+  var k=ev.key;
+  if(k>="1"&&k<="6"){goTab(TABS[+k-1]);}
+  else if(k=="t"||k=="e"||k=="T"||k=="E"||k=="у"||k=="У"){$("#bTheme").click();}
+  else if(k=="?"||k=="/"){$("#bHelp").classList.add("on");}
+  else if(k=="d"||k=="D"||k=="в"||k=="В"){$("#bDemo").classList.add("on");}
+  else if(k=="Escape"){$$(".modal").forEach(function(m){m.classList.remove("on");});}
+});
+/* публичный API для интеграций и автотестов */
+window.niokrAPI={
+  version:"19.0",method:"ЭО-НИОКР v1.0",QEO22:QEO22,
+  state:function(){return S;},
+  calc:calc,
+  setScore:function(exp,code,v){var e=S.exp[exp-1];if(!e)return false;e.q[code]=(v==null||v==="НО")?v:+v;save();renderAll();return true;},
+  setSF:function(exp,n,v){S.exp[exp-1].sf[n]=v;save();renderAll();return true;},
+  setKV:function(exp,n,v){S.exp[exp-1].kv[n]=v;save();renderAll();return true;},
+  demo:applyDemo,
+  reset:function(){S=defState();save();renderAll();return true;},
+  exportMD:function(){return mdChecklist(calc());},
+  protText:function(){return protText(calc());},
+  goTab:goTab
+};
+renderAll();
+</script>
+</body>
+</html>
