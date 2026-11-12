@@ -1,0 +1,14 @@
+const fs=require('fs'),path=require('path');
+const {JSDOM,VirtualConsole}=require('jsdom');
+const src=fs.readFileSync(path.join('output','versions','Аудит_НИОКР_модель_v21.1.html'),'utf8');
+const vc=new VirtualConsole();const errs=[];vc.on('jsdomError',e=>errs.push(String(e)));
+const dom=new JSDOM(src,{runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,url:'http://localhost/'});
+const api=dom.window.niokrAPI;
+api.demo('port');
+const st=api.calibStats();
+const pr=api.proposeCalib();
+const projects=api.projects().map(p=>({shifr:p.obj.shifr,IA:p.R.IA,IC:p.R.IC,zA:p.R.zA,zC:p.R.zC,rec:p.R.rec,sf:p.R.sfDet,kv:p.R.kvGroup,sA:p.R.sA,sC:p.R.sC}));
+api.setModes(false,true);
+const projectsR=api.projects().map(p=>({shifr:p.obj.shifr,IR:p.R.IR,zR:p.R.zR}));
+const stR=api.calibStats();
+console.log(JSON.stringify({stats:{nProj:st.nProj,nForms:st.nForms,total:st.total,no:st.no,counts:st.counts,mean:st.mean,median:st.median,sd:st.sd,share12:st.share12,share3:st.share3,share45:st.share45},propose:pr,projects:projects,projectsR:projectsR,errors:errs.length},null,1));

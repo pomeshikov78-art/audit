@@ -1,0 +1,22 @@
+const fs=require('fs'),path=require('path');
+const {JSDOM,VirtualConsole}=require('jsdom');
+const src=fs.readFileSync(path.join('output','versions','Аудит_НИОКР_модель_v21.1.html'),'utf8');
+const vc=new VirtualConsole();let errs=[];vc.on('jsdomError',e=>errs.push(String(e&&e.message||e)));
+const dom=new JSDOM(src,{runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,url:'http://localhost/'});
+const w=dom.window,api=w.niokrAPI;
+function probe(name,fn){try{const r=fn();console.log(name,'=>',JSON.stringify(r));}catch(e){console.log(name,'=> EXCEPTION:',String(e).slice(0,90));}}
+probe('1 setSF(11,...)',()=>api.setSF(11,1,'Да'));
+probe('2 setKV(0,...)',()=>api.setKV(0,1,3));
+probe('3 importExpert slot=11',()=>{const j=api.exportExpert(1);const r=api.importExpert(j,11);return {ret:r,len:api.state().exp.length};});
+probe('4 duplicateProject(99)',()=>api.duplicateProject(99));
+probe('5 removeProject(99)',()=>{const r=api.removeProject(99);return {ret:r,n:api.db().projects.length};});
+probe('6 importPortfolio projects:[null]',()=>{const n0=api.db().projects.length;const r=api.importPortfolio(JSON.stringify({v:21,projects:[null]}));let after;try{after=api.projects().length;}catch(e){after='CRASH:'+String(e).slice(0,50);}return {ret:r,n0:n0,after:after};});
+probe('7 saveView пустое имя',()=>api.saveView(''));
+probe('8 saveView дубль',()=>{api.saveView('X');api.saveView('X');return api.db().views.filter(v=>v.name==='X').length;});
+console.log('window errors:',errs.length,errs.slice(0,2));
+probe('9 importExpert slot=-1',()=>api.importExpert(api.exportExpert(1),-1));
+probe('10 importExpert slot=2.5',()=>api.importExpert(api.exportExpert(1),2.5));
+probe('11 importPortfolio 31 проект',()=>api.importPortfolio(JSON.stringify({v:21,projects:Array(31).fill({})})));
+probe('12 importPortfolio битая калибровка',()=>{const r=api.importPortfolio(JSON.stringify({v:21,projects:[{}],calib:{zoneV:'x'}}));return {ret:r,calib:api.db().calib};});
+probe('13 версия',()=>api.version);
+console.log('window errors final:',errs.length);

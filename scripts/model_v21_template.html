@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ЭО-НИОКР v2.0 — портфельная экспертная оценка НИОКР, модель v21.0</title>
+<title>ЭО-НИОКР v2.0 — портфельная экспертная оценка НИОКР, модель v21.1</title>
 <style>
 :root{
   --navy:#1f3864; --navy2:#2e5395; --accent:#2e74b5; --sky:#9db7e0;
@@ -135,7 +135,7 @@ body.dark .hbar .track{background:#39435a}
 <div class="topbar">
   <div class="logo">ЭО</div>
   <h1>Экспертная оценка НИОКР: портфель, актуальность, целесообразность</h1>
-  <span class="ver">v21.0 · ЭО-НИОКР v2.0 · портфель ≤30 · до 10 экспертов</span>
+  <span class="ver">v21.1 · ЭО-НИОКР v2.0 · портфель ≤30 · до 10 экспертов</span>
   <div class="spacer"></div>
   <select id="roleSel" title="Роль пользователя" style="background:#2e5395;color:#fff;border-color:#9db7e0"><option value="chair">👤 Председатель</option><option value="sec">👤 Секретарь</option><option value="exp">👤 Эксперт</option></select>
   <select id="expSel" title="Моя анкета (роль «Эксперт»)" style="background:#2e5395;color:#fff;border-color:#9db7e0;display:none"></select>
@@ -168,7 +168,7 @@ body.dark .hbar .track{background:#39435a}
 </main>
 <div class="toastwrap" id="toasts"></div>
 <div class="modal" id="mHelp"><div class="box">
-  <h2>Справка: ЭО-НИОКР v2.0 (модель v21.0)</h2>
+  <h2>Справка: ЭО-НИОКР v2.0 (модель v21.1)</h2>
   <p><b>Назначение.</b> Экспертная оценка актуальности и целесообразности продолжения НИОКР. Ровно 22 вопроса (10 + 12), единая шкала 1–5 и Н/О, 5 стоп-факторов, 9 «красных» вопросов, два индекса I<sub>A</sub> и I<sub>C</sub>, матрица решений 3×3. Документальное подтверждение баллов не требуется. <b>Расширения v2.0 (опционально, после апробации):</b> веса экспертов, третий индекс результативности I<sub>R</sub> (блок Р1–Р6), калибровка порогов, портфель до 30 НИОКР.</p>
   <p><b>Порядок работы.</b> 1) «Дашборд»: заполните объект оценки. 2) «Анкеты»: каждый эксперт (от 3 до 10) независимо заполняет свою анкету Э1…Э10 (22 вопроса + стоп-факторы + «красные»); для распределённой работы секретарь выгружает анкету эксперту файлом («⬇ Анкета Эk») и принимает обратно («⬆ Импорт анкеты»). 3) «Свод» и «Панель»: групповые индексы, σ-согласованность, сигналы, повестка обсуждения. 4) «Заключение»: автоматический текст и протокол комиссии.</p>
   <p><b>Роли.</b> Переключатель в шапке: «Председатель» — полный доступ; «Секретарь» — анкеты, свод, экспорт/импорт, но поля решения комиссии недоступны; «Эксперт» — видит только свою анкету и методику, сводные результаты скрыты до открытия председателем (независимость первичной оценки).</p>
@@ -178,7 +178,7 @@ body.dark .hbar .track{background:#39435a}
   <p><b>Горячие клавиши:</b> 1–8 — вкладки; t — тема; ? — справка; Ctrl+S — экспорт JSON; D — демо-меню.</p>
   <p><b>Правила расчёта.</b> I<sub>A</sub> = ΣA<sub>i</sub>/N<sub>A</sub> (Н/О исключены; минимум 8 из 10 оценок); I<sub>C</sub> = ΣC<sub>j</sub>/N<sub>C</sub> (минимум 10 из 12). Групповой индекс — простое среднее индивидуальных (веса равные). σ — популяционное стандартное отклонение; σ&gt;1,00 — обязательное обсуждение при сохранении исходных оценок. Зоны: В 4,00–5,00 · С 3,00–3,99 · Н 1,00–2,99. Стоп-фактор «Да» хотя бы у одного эксперта — выявлен и блокирует автоматическую рекомендацию «Продолжить НИОКР» (понижение до «Пересмотреть»). Групповой «красный» сигнал — при ≥2 экспертах.</p>
   <p><b>Роли.</b> Эксперт заполняет только свою анкету; секретарь не вправе менять баллы; председатель не имеет приоритетного голоса; решение принимает комиссия.</p>
-  <p class="note">Модель v21.0 (этап 21) реализует методику ЭО-НИОКР v2.0 — расширение v1.0 (чат «Методика аудита НИОКР», скан Приложения №2) по итогам апробации: портфель ≤30, веса, I_R, калибровка, печатный бланк. Базовый состав 22/5/9 не изменялся. История версий — VERSIONS.md.</p>
+  <p class="note">Модель v21.1 (этап 21Б: корректирующий выпуск — робастность API) реализует методику ЭО-НИОКР v2.0 — расширение v1.0 (чат «Методика аудита НИОКР», скан Приложения №2) по итогам апробации: портфель ≤30, веса, I_R, калибровка, печатный бланк. Базовый состав 22/5/9 не изменялся. История версий — VERSIONS.md.</p>
   <p><button class="btn" onclick="document.getElementById('mHelp').classList.remove('on')">Закрыть</button></p>
 </div></div>
 <div class="modal" id="mDemo"><div class="box">
@@ -658,7 +658,7 @@ function protText(R){
   return t;}
 function mdChecklist(R){
   var L=[];
-  L.push("# Чек-лист экспертной оценки НИОКР (ЭО-НИОКР v2.0, модель v21.0)");
+  L.push("# Чек-лист экспертной оценки НИОКР (ЭО-НИОКР v2.0, модель v21.1)");
   L.push("");
   L.push("**Объект:** "+(S.obj.name||"__")+" (шифр "+(S.obj.shifr||"__")+"); дата: "+(S.obj.date||"__")+".");
   L.push("**Эксперты:** "+(S.exp.map(function(e,i){return e.fio?("Э"+(i+1)+" "+e.fio):null;}).filter(Boolean).join("; ")||"__")+".");
@@ -801,11 +801,13 @@ function addProject(name){
   var p=defState();p.obj.name=name||("НИОКР "+(DB.projects.length+1));p.obj.date=new Date().toISOString().slice(0,10);p.role=DB.role;
   DB.projects.push(p);switchProject(DB.projects.length-1);toast("НИОКР добавлена в портфель");return true;}
 function duplicateProject(i){
+  if(!(i>=0&&i<DB.projects.length&&i===Math.floor(i)))return false;
   if(DB.projects.length>=PMAX){toast("Достигнут лимит портфеля: "+PMAX+" НИОКР");return false;}
   var c=JSON.parse(JSON.stringify(DB.projects[i]));c.obj.name=(c.obj.name||"НИОКР")+" (копия)";if(c.obj.shifr)c.obj.shifr+="-К";
   DB.projects.splice(i+1,0,c);PF.sel={};save();renderAll();toast("Копия НИОКР создана");return true;}
 var TRASH=[];
 function removeProject(i){
+  if(!(i>=0&&i<DB.projects.length&&i===Math.floor(i)))return false;
   if(DB.projects.length<=1){toast("Портфель не может быть пустым: оставьте хотя бы одну НИОКР");return false;}
   var wasCur=DB.cur;
   TRASH.push({p:DB.projects[i],idx:i});
@@ -1004,7 +1006,7 @@ function portCSV(rows,selected){
     r.R.zA||"",r.R.zC||"",r.R.zR||"",r.R.rec||"не формируется",r.R.sfDet?"ВЫЯВЛЕН":"нет",r.R.kvGroup.join(" ")||"нет",r.p.com.rec||""]);});
   return "\uFEFF"+out.map(function(r){return r.map(function(c){c=String(c==null?"":c);return /[";\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(";");}).join("\n");}
 function portMD(rows){
-  var L=["# Отчёт по портфелю НИОКР (ЭО-НИОКР v2.0, модель v21.0)","",
+  var L=["# Отчёт по портфелю НИОКР (ЭО-НИОКР v2.0, модель v21.1)","",
     "**Дата:** "+new Date().toISOString().slice(0,10)+"; **НИОКР в портфеле:** "+rows.length+" из "+PMAX+".",
     "**Режимы:** веса экспертов — "+(DB.wmode?"включены":"выключены")+"; блок результативности I_R — "+(DB.rmode?"включён":"выключен")+".",
     "**Пороги:** В≥"+f2(CAL.zoneV)+", С≥"+f2(CAL.zoneS)+"; σ "+f2(CAL.s1)+"/"+f2(CAL.s2)+"/"+f2(CAL.s3)+(DB.calibHist.length?" (калибровка: записей "+DB.calibHist.length+")":" (по умолчанию)")+".","",
@@ -1161,7 +1163,7 @@ function rBlockHTML(e,x){
 function ankFormHTML(e){
   function cells(v,opts){return opts.map(function(k){return '<td class="circ'+(v==k?" mark":"")+'">'+(k=="НО"?"Н/О":k)+'</td>';}).join("");}
   var h='<div class="card pform"><p class="noprint"><button class="btn sm gray" id="bBackForm">← К электронной анкете</button> <button class="btn sm" onclick="window.print()">🖨 Печать бланка</button></p>'+
-  '<h2>ПРИЛОЖЕНИЕ №1 — ИНДИВИДУАЛЬНАЯ АНКЕТА ЭКСПЕРТНОЙ ОЦЕНКИ НИОКР<br>(ЭО-НИОКР v2.0 · бумажная процедура · модель v21.0)</h2>'+
+  '<h2>ПРИЛОЖЕНИЕ №1 — ИНДИВИДУАЛЬНАЯ АНКЕТА ЭКСПЕРТНОЙ ОЦЕНКИ НИОКР<br>(ЭО-НИОКР v2.0 · бумажная процедура · модель v21.1)</h2>'+
   '<p>НИОКР: <span class="line">'+esc(S.obj.name||"")+'</span> Шифр: <span class="line" style="min-width:90px">'+esc(S.obj.shifr||"")+'</span></p>'+
   '<p>Эксперт (Ф.И.О.): <span class="line">'+esc(e.fio||"")+'</span> Компетенция: <span class="line">'+esc(e.comp||"")+'</span> Дата: <span class="line" style="min-width:90px">'+esc(e.date||"")+'</span></p>'+
   '<p class="note">Обведите один балл по каждому вопросу (1 — крайне низкая … 5 — очень высокая; якоря — Приложение №8 методики). Н/О обводите только при отсутствии компетенции (не более двух на раздел). Анкета заполняется независимо от других экспертов; документальные подтверждения не требуются. При колебании выбирайте более низкий балл.</p>'+
@@ -1218,8 +1220,9 @@ $("#bPrint").addEventListener("click",function(){printTab($$("#tabs button").fil
 $("#bExp").addEventListener("click",function(){save();dl(JSON.stringify(DB,null,1),"Портфель_ЭО_НИОКР_v21_"+(S.obj.shifr||"текущая")+".json","application/json");toast("Экспорт портфеля JSON выполнен ("+DB.projects.length+" НИОКР)");});
 $("#bImp").addEventListener("click",function(){$("#fImp").click();});
 function normProject(p){
-  var np=defState();np.obj=p.obj||np.obj;np.com=p.com||np.com;
-  if(p.exp)for(var i=0;i<p.exp.length&&i<10;i++)np.exp[i]=p.exp[i];
+  var np=defState();if(!p||typeof p!="object")return np;
+  if(p.obj&&typeof p.obj=="object")np.obj=p.obj;if(p.com&&typeof p.com=="object")np.com=p.com;
+  if(p.exp&&p.exp.length)for(var i=0;i<p.exp.length&&i<10;i++){if(p.exp[i]&&typeof p.exp[i]=="object")np.exp[i]=p.exp[i];}
   np.exp.forEach(function(e){if(e.w==null)e.w=1;if(!e.qr)e.qr={};if(!e.qrc)e.qrc={};});
   np.role=DB.role;return np;}
 $("#fImpE").addEventListener("change",function(){
@@ -1236,12 +1239,17 @@ $("#fImp").addEventListener("change",function(){
   var f=this.files[0];if(!f)return;var rd=new FileReader();
   rd.onload=function(){try{var d=JSON.parse(rd.result);
     if(d&&d.v===21&&d.projects&&d.projects.length){
+      if(d.projects.length>PMAX){toast("Лимит портфеля: "+PMAX);return;}
+      if(d.projects.some(function(x){return !x||typeof x!="object";})){toast("Файл портфеля повреждён: пустые записи НИОКР");return;}
       if(!confirm("Заменить текущий портфель ("+DB.projects.length+" НИОКР) импортируемым ("+d.projects.length+")?"))return;
-      DB=d;if(!DB.calib)DB.calib=defCalib();if(!DB.calibHist)DB.calibHist=[];if(!DB.views)DB.views=[];
-      DB.projects=DB.projects.map(normProject);
-      if(DB.cur<0||DB.cur>=DB.projects.length)DB.cur=0;
-      if(!DB.role)DB.role="chair";
-      CAL=DB.calib;S=DB.projects[DB.cur];S.role=DB.role;S.expLogin=DB.expLogin||0;CUR=0;
+      var nps=d.projects.map(normProject);
+      var c=d.calib;
+      if(!(c&&c.zoneV>c.zoneS&&c.zoneS>=1&&c.zoneV<=5&&c.s1>0&&c.s1<c.s2&&c.s2<c.s3&&c.s3<=3))d.calib=defCalib();
+      if(!d.calibHist)d.calibHist=[];if(!d.views)d.views=[];
+      d.projects=nps;
+      if(!(d.cur>=0&&d.cur<d.projects.length))d.cur=0;
+      if(!d.role)d.role="chair";
+      DB=d;CAL=DB.calib;S=DB.projects[DB.cur];S.role=DB.role;S.expLogin=DB.expLogin||0;CUR=0;
       save();renderAll();toast("Портфель v21 импортирован: "+DB.projects.length+" НИОКР");return;}
     if(d&&d.v===21&&d.kind==="project"&&d.project){
       if(DB.projects.length>=PMAX){toast("Лимит портфеля: "+PMAX);return;}
@@ -1265,13 +1273,13 @@ document.addEventListener("keydown",function(ev){
 });
 /* публичный API для интеграций и автотестов */
 window.niokrAPI={
-  version:"21.0",method:"ЭО-НИОКР v2.0 (портфель ≤30, веса, I_R, калибровка, бланк)",QEO22:QEO22,QEO21:QEO21,
+  version:"21.1",method:"ЭО-НИОКР v2.0 (портфель ≤30, веса, I_R, калибровка, бланк)",QEO22:QEO22,QEO21:QEO21,
   state:function(){return S;},
   db:function(){return DB;},
   calc:calc,
   setScore:function(exp,code,v){var e=S.exp[exp-1];if(!e)return false;e.q[code]=(v==null||v==="НО")?v:+v;save();renderAll();return true;},
-  setSF:function(exp,n,v){S.exp[exp-1].sf[n]=v;save();renderAll();return true;},
-  setKV:function(exp,n,v){S.exp[exp-1].kv[n]=v;save();renderAll();return true;},
+  setSF:function(exp,n,v){var e=S.exp[exp-1];if(!e)return false;e.sf[n]=v;save();renderAll();return true;},
+  setKV:function(exp,n,v){var e=S.exp[exp-1];if(!e)return false;e.kv[n]=v;save();renderAll();return true;},
   setR:function(exp,code,v){var e=S.exp[exp-1];if(!e)return false;if(!e.qr)e.qr={};e.qr[code]=(v==null||v==="НО")?v:+v;save();renderAll();return true;},
   setWeight:function(exp,w){var e=S.exp[exp-1];if(!e)return false;e.w=clampW(w);save();renderAll();return true;},
   demo:applyDemo,
@@ -1280,9 +1288,10 @@ window.niokrAPI={
   fixRound:function(exp){var e=S.exp[exp-1];if(!e)return false;e.q0=JSON.parse(JSON.stringify(e.q));if(DB.rmode)e.qr0=JSON.parse(JSON.stringify(e.qr||{}));save();renderAll();return true;},
   exportExpert:function(exp){return JSON.stringify({v:21,kind:"expert",slot:exp,obj:S.obj,expert:S.exp[exp-1]});},
   importExpert:function(json,slot){try{var d=typeof json=="string"?JSON.parse(json):json;
-    if(!d||[20,21].indexOf(d.v)<0||d.kind!=="expert"||!d.expert)return false;
+    if(!d||[20,21].indexOf(d.v)<0||d.kind!=="expert"||!d.expert||!d.expert.q||typeof d.expert.q!=="object")return false;
+    var sl=+(slot||d.slot||1);if(!(sl>=1&&sl<=10&&sl===Math.floor(sl)))return false;
     if(!d.expert.qr)d.expert.qr={};if(!d.expert.qrc)d.expert.qrc={};if(d.expert.w==null)d.expert.w=1;
-    S.exp[(slot||d.slot||1)-1]=d.expert;save();renderAll();return true;}catch(e){return false;}},
+    S.exp[sl-1]=d.expert;save();renderAll();return true;}catch(e){return false;}},
   projects:function(){return DB.projects.map(function(p,i){return {i:i,obj:p.obj,R:calc(p)};});},
   addProject:addProject,
   switchProject:switchProject,
@@ -1293,17 +1302,23 @@ window.niokrAPI={
   exportProject:function(i){return JSON.stringify({v:21,kind:"project",project:DB.projects[i]});},
   exportPortfolio:function(){save();return JSON.stringify(DB);},
   importPortfolio:function(json){try{var d=typeof json=="string"?JSON.parse(json):json;
-    if(!d||d.v!==21||!d.projects||!d.projects.length)return false;
-    DB=d;if(!DB.calib)DB.calib=defCalib();if(!DB.calibHist)DB.calibHist=[];if(!DB.views)DB.views=[];
-    DB.projects=DB.projects.map(normProject);
-    if(DB.cur<0||DB.cur>=DB.projects.length)DB.cur=0;if(!DB.role)DB.role="chair";
-    CAL=DB.calib;S=DB.projects[DB.cur];S.role=DB.role;CUR=0;save();renderAll();return true;}catch(e){return false;}},
+    if(!d||d.v!==21||!d.projects||!d.projects.length||d.projects.length>PMAX)return false;
+    if(d.projects.some(function(x){return !x||typeof x!="object";}))return false;
+    var nps=d.projects.map(normProject);
+    var c=d.calib;
+    if(!(c&&c.zoneV>c.zoneS&&c.zoneS>=1&&c.zoneV<=5&&c.s1>0&&c.s1<c.s2&&c.s2<c.s3&&c.s3<=3))d.calib=defCalib();
+    if(!d.calibHist)d.calibHist=[];if(!d.views)d.views=[];
+    d.projects=nps;
+    if(!(d.cur>=0&&d.cur<d.projects.length))d.cur=0;if(!d.role)d.role="chair";
+    DB=d;CAL=DB.calib;S=DB.projects[DB.cur];S.role=DB.role;CUR=0;save();renderAll();return true;}catch(e){return false;}},
   setModes:function(w,r){DB.wmode=!!w;DB.rmode=!!r;save();renderAll();return true;},
   calibStats:calibStats,
   proposeCalib:proposeCalib,
   setCalib:function(c,meta){meta=meta||{};return applyCalib({zoneV:+c.zoneV,zoneS:+c.zoneS,s1:+c.s1,s2:+c.s2,s3:+c.s3},meta.why||"API",meta.prot||"API");},
   resetCalib:function(){return applyCalib(defCalib(),"Сброс к значениям по умолчанию","—");},
-  saveView:function(name){DB.views.push({name:name,q:PF.q,zone:PF.zone,sort:PF.sort});save();renderPort();return true;},
+  saveView:function(name){name=String(name==null?"":name).trim();if(!name)return false;
+    DB.views=DB.views.filter(function(x){return x.name!=name;});
+    DB.views.push({name:name,q:PF.q,zone:PF.zone,sort:PF.sort});save();renderPort();return true;},
   applyView:function(name){var v=DB.views.filter(function(x){return x.name==name;})[0];if(!v)return false;PF.q=v.q;PF.zone=v.zone;PF.sort=v.sort;renderPort();return true;},
   portCSV:function(){return portCSV(portRows(),false);},
   portMD:function(){return portMD(portRows());},
