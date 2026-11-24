@@ -175,7 +175,7 @@ python scripts/gen_13_scenario_23.py    # сценарий (запятая)
 
 ## 7. Публикация
 
-Из рабочей песочницы push невозможен (нет учётных данных GitHub), поэтому поставка подготовлена как git-бандл `output/audit_v19-v23.bundle` (полная история + коммиты этапов 19–23).
+**Публикация выполнена:** пакет v23.0 отправлен в `https://github.com/pomeshikov78-art/audit.git`, `main` обновлён fast-forward `e6155a5..8836a94` (коммит пакета `8836a94`). Git-бандл `output/audit_v19-v23.bundle` сохранён как транспортный артефакт полной истории (этапы 19–23).
 
 ```bash
 git clone audit_v19-v23.bundle audit
